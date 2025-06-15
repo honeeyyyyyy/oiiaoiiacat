@@ -1,0 +1,55 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f0f0;
+    user-select: none;
+}
+
+.container {
+    text-align: center;
+}
+
+.score-container {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.cat-container {
+    cursor: pointer;
+    margin: 20px 0;
+}
+
+.cat {
+    width: 200px;
+    height: 200px;
+    transition: transform 0.2s ease;
+}
+
+.cat.spinning {
+    animation: spin 0.5s linear;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.info {
+    font-size: 1.2rem;
+    color: #666;
+    margin-top: 20px;
+} 

@@ -1,0 +1,237 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Fredoka One', 'Arial', sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #ffffff;
+    user-select: none;
+    overflow: hidden;
+    position: relative;
+}
+
+.container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.score-container {
+    font-size: 3rem;
+    color: #333;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.cat-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+}
+
+.cat {
+    position: absolute;
+    width: auto;
+    height: 90vh;
+    max-width: none;
+    object-fit: contain;
+    opacity: 0;
+    display: none;
+    mix-blend-mode: multiply;
+}
+
+/* 각 이미지에 대한 개별 스타일 추가 */
+#cat-static {
+    transform: scale(0.9);  /* 크기를 0.9배로 줄임 */
+}
+
+#cat-spin {
+    transform: scale(1.2);
+}
+
+.cat.active {
+    opacity: 1;
+    display: block;
+}
+
+/* 클릭 효과 제거 */
+.cat-container:active {
+    transform: none;
+}
+
+.info {
+    font-size: 1.5rem;
+    color: #333;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.rankings {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 100;
+    min-width: 300px;
+}
+
+.ranking-total {
+    text-align: center;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eee;
+    font-weight: bold;
+    color: #333;
+}
+
+.total-spins {
+    display: block;
+    font-size: 1.8em;
+    color: #FF6B9D;
+    margin-top: 5px;
+}
+
+.ranking-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+.ranking-item:hover {
+    background-color: #f8f8f8;
+}
+
+.ranking-position {
+    font-weight: bold;
+    color: #333;
+    margin-right: 15px;
+    min-width: 25px;
+}
+
+.ranking-country {
+    flex-grow: 1;
+    text-align: left;
+    color: #666;
+}
+
+.ranking-spins {
+    font-weight: bold;
+    color: #FF6B9D;
+    min-width: 80px;
+    text-align: right;
+}
+
+/* 스크롤바 스타일링 */
+.rankings::-webkit-scrollbar {
+    width: 8px;
+}
+
+.rankings::-webkit-scrollbar-track {
+    background: #FFE6F0;
+    border-radius: 4px;
+}
+
+.rankings::-webkit-scrollbar-thumb {
+    background: #FF6B9D;
+    border-radius: 4px;
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+    .cat {
+        height: 80vh;
+    }
+
+    .rankings {
+        position: fixed;
+        right: 10px;
+        left: 10px;
+        bottom: 80px;
+        top: auto;
+        transform: none;
+        max-height: 40vh;
+        min-width: auto;
+    }
+
+    .score-container {
+        font-size: 2.5rem;
+    }
+
+    .info {
+        font-size: 1.2rem;
+        bottom: 10px;
+    }
+}
+
+/* 광고 컨테이너 스타일 */
+.ad-container-top {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 728px;
+    height: 90px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    z-index: 100;
+}
+
+.ad-container-bottom {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 728px;
+    height: 90px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    z-index: 100;
+}
+
+/* 모바일 광고 대응 */
+@media (max-width: 768px) {
+    .ad-container-top,
+    .ad-container-bottom {
+        width: 320px;
+        height: 100px;
+    }
+
+    .ad-container-bottom {
+        bottom: 70px;
+    }
+} 

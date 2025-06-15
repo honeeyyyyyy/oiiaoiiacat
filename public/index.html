@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OIIA OIIA CAT - 고양이 돌리기 게임</title>
+    
+    <!-- 검색엔진 인증 태그 -->
+    <meta name="google-site-verification" content="NrJkCUv1-AVjKMbULKBAc2JDBTZEwvxi7g_jJt8Lc2A" />
+    <meta name="naver-site-verification" content="b6105c73b9b492eda2ed8b1e05c3a013d76ea549" />
+    
+    <!-- SEO 메타 태그 -->
+    <meta name="description" content="OIIA OIIA CAT - 귀여운 고양이를 돌려보세요! 전 세계 사람들과 함께하는 고양이 돌리기 게임">
+    <meta name="keywords" content="고양이 게임, OIIA CAT, 고양이 돌리기, spinning cat, OIIA OIIA, 오이야 고양이">
+    <meta property="og:title" content="OIIA OIIA CAT - 고양이 돌리기 게임">
+    <meta property="og:description" content="귀여운 고양이를 돌려보세요! 전 세계 사람들과 함께하는 고양이 돌리기 게임">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://oiiaoiiacat.com">
+    <meta property="og:image" content="https://oiiaoiiacat.com/og-image.jpg">
+    
+    <!-- 파비콘 -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-[당신의ID]" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="score-container">
+            <span id="score">0</span>
+            <span>회전</span>
+        </div>
+        <div class="cat-container">
+            <!-- 정적 이미지와 GIF를 겹쳐서 배치 -->
+            <img src="cat-static.gif" alt="Static Cat" class="cat active" id="cat-static">
+            <img src="cat-spin.gif" alt="Spinning Cat" class="cat" id="cat-spin">
+        </div>
+        <div class="info">
+            클릭해서 고양이를 회전시키세요!
+        </div>
+        <div class="rankings">
+            <h2>국가별 순위</h2>
+            <div id="rankingsList"></div>
+        </div>
+    </div>
+    <audio id="spinSound" src="spin.mp3"></audio>
+    <script src="script.js"></script>
+
+    <!-- 광고 컨테이너 추가 -->
+    <div class="ad-container-top"></div>
+    <div class="ad-container-bottom"></div>
+</body>
+</html> 
