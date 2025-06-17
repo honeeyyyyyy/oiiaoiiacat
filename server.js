@@ -12,6 +12,16 @@ const PORT = process.env.PORT || 3000;
 // 미들웨어 설정
 app.use(cors());
 app.use(express.json());
+
+// 캐시 무효화 미들웨어
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    res.set('Surrogate-Control', 'no-store');
+    next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB 연결 설정
