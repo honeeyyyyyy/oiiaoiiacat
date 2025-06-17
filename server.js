@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // MongoDB 연결 설정
 const connectDB = async () => {
     try {
-        await mongoose.connect('mongodb://127.0.0.1:27017/oiia-cat', {
+        await mongoose.connect(process.env.MONGODB_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             serverSelectionTimeoutMS: 5000
@@ -109,17 +109,29 @@ app.post('/api/spin', async (req, res) => {
 
 app.get('/api/rankings', async (req, res) => {
     try {
+        // 상위 10개국 랭킹
         const rankings = await Country.find()
             .sort('-totalSpins')
             .limit(10)
             .select('countryCode countryName totalSpins lastUpdated');
         
+        // 전세계 총 스핀 수 계산
+        const totalResult = await Country.aggregate([
+            { $group: { _id: null, totalSpins: { $sum: '$totalSpins' } } }
+        ]);
+        const worldTotalSpins = totalResult.length > 0 ? totalResult[0].totalSpins : 0;
+        
         // 상위 10개국의 총 스핀 수 계산
         const totalSpinsTop10 = rankings.reduce((sum, country) => sum + country.totalSpins, 0);
         
+        // 참여 국가 수
+        const totalCountries = await Country.countDocuments();
+        
         res.json({
             rankings,
-            totalSpinsTop10,
+            worldTotalSpins,        // 전세계 총 클릭 수
+            totalSpinsTop10,        // 상위 10개국 총 클릭 수
+            totalCountries,         // 참여 국가 수
             lastUpdated: new Date()
         });
     } catch (error) {

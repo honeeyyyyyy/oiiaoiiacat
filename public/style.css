@@ -105,48 +105,94 @@ body {
     max-height: 80vh;
     overflow-y: auto;
     z-index: 100;
-    min-width: 300px;
+    min-width: 320px;
+}
+
+.ranking-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #FFE6F0;
+}
+
+.ranking-header h3 {
+    color: #FF6B9D;
+    font-size: 1.3rem;
+    margin: 0;
+    font-weight: bold;
 }
 
 .ranking-total {
-    text-align: center;
-    padding: 15px;
+    background: linear-gradient(135deg, #FF6B9D, #e55a8a);
+    color: white;
+    padding: 20px;
     margin-bottom: 20px;
-    border-bottom: 2px solid #eee;
-    font-weight: bold;
-    color: #333;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.total-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.total-item:last-child {
+    margin-bottom: 0;
 }
 
 .total-spins {
-    display: block;
-    font-size: 1.8em;
-    color: #FF6B9D;
-    margin-top: 5px;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.total-countries {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.ranking-list {
+    background: #f9f9f9;
+    border-radius: 10px;
+    padding: 10px;
 }
 
 .ranking-item {
     display: flex;
     justify-content: space-between;
-    padding: 12px;
-    border-bottom: 1px solid #eee;
-    transition: background-color 0.2s;
+    align-items: center;
+    padding: 12px 15px;
+    background: white;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.ranking-item:last-child {
+    margin-bottom: 0;
 }
 
 .ranking-item:hover {
-    background-color: #f8f8f8;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
 }
 
 .ranking-position {
     font-weight: bold;
-    color: #333;
+    color: #FF6B9D;
     margin-right: 15px;
     min-width: 25px;
+    font-size: 1.1rem;
 }
 
 .ranking-country {
     flex-grow: 1;
     text-align: left;
-    color: #666;
+    color: #333;
+    font-weight: 500;
 }
 
 .ranking-spins {
@@ -154,6 +200,7 @@ body {
     color: #FF6B9D;
     min-width: 80px;
     text-align: right;
+    font-size: 0.95rem;
 }
 
 /* 스크롤바 스타일링 */
@@ -184,8 +231,47 @@ body {
         bottom: 80px;
         top: auto;
         transform: none;
-        max-height: 40vh;
+        max-height: 45vh;
         min-width: auto;
+        padding: 15px;
+    }
+
+    .ranking-header h3 {
+        font-size: 1.1rem;
+    }
+
+    .ranking-total {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .total-item {
+        font-size: 0.9rem;
+    }
+
+    .total-spins {
+        font-size: 1.3em;
+    }
+
+    .total-countries {
+        font-size: 1.1em;
+    }
+
+    .ranking-item {
+        padding: 10px 12px;
+        margin-bottom: 6px;
+    }
+
+    .ranking-position {
+        font-size: 1rem;
+    }
+
+    .ranking-country {
+        font-size: 0.9rem;
+    }
+
+    .ranking-spins {
+        font-size: 0.85rem;
     }
 
     .score-container {
@@ -233,5 +319,62 @@ body {
 
     .ad-container-bottom {
         bottom: 70px;
+    }
+}
+
+.footer {
+    position: fixed;
+    bottom: 5px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.footer a {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.3s;
+    margin: 0 5px;
+}
+
+.footer a:hover {
+    color: #FF6B9D;
+}
+
+@media (max-width: 768px) {
+    .footer {
+        bottom: 5px;
+        right: 10px;
+        left: auto;
+        transform: none;
+        font-size: 0.75rem;
+        padding: 5px 10px;
+    }
+}
+
+/* 광고 스타일 */
+.adsbygoogle {
+    margin: 20px auto;
+    text-align: center;
+    max-width: 100%;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+    .adsbygoogle {
+        margin: 10px auto;
+    }
+    
+    .footer {
+        bottom: 5px;
+        font-size: 0.8rem;
+        white-space: nowrap;
     }
 } 

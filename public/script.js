@@ -46,21 +46,32 @@ async function updateRankings() {
     try {
         const response = await fetch('/api/rankings');
         const data = await response.json();
-        const { rankings, totalSpinsTop10 } = data;
+        const { rankings, worldTotalSpins, totalSpinsTop10, totalCountries } = data;
         
         // 랭킹 목록 업데이트
         rankingsList.innerHTML = `
-            <div class="ranking-total">
-                <span>전체 스핀 수</span>
-                <span class="total-spins">${totalSpinsTop10.toLocaleString()}</span>
+            <div class="ranking-header">
+                <h3>🌍 전세계 랭킹</h3>
             </div>
-            ${rankings.map((country, index) => `
-                <div class="ranking-item">
-                    <span class="ranking-position">${index + 1}</span>
-                    <span class="ranking-country">${country.countryName}</span>
-                    <span class="ranking-spins">${country.totalSpins.toLocaleString()}</span>
+            <div class="ranking-total">
+                <div class="total-item">
+                    <span>전세계 총 클릭 수</span>
+                    <span class="total-spins">${worldTotalSpins.toLocaleString()}</span>
                 </div>
-            `).join('')}
+                <div class="total-item">
+                    <span>참여 국가 수</span>
+                    <span class="total-countries">${totalCountries}개국</span>
+                </div>
+            </div>
+            <div class="ranking-list">
+                ${rankings.map((country, index) => `
+                    <div class="ranking-item">
+                        <span class="ranking-position">${index + 1}</span>
+                        <span class="ranking-country">${country.countryName}</span>
+                        <span class="ranking-spins">${country.totalSpins.toLocaleString()}</span>
+                    </div>
+                `).join('')}
+            </div>
         `;
     } catch (error) {
         console.error('순위 업데이트 실패:', error);
