@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OIIA OIIA CAT - 새 버전</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Fredoka One', 'Arial', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #ffffff;
+            user-select: none;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .score-container {
+            font-size: 3rem;
+            color: #333;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .cat-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .cat {
+            position: absolute;
+            width: auto;
+            height: 90vh;
+            max-width: none;
+            object-fit: contain;
+            opacity: 0;
+            display: none;
+            mix-blend-mode: multiply;
+        }
+
+        #cat-static {
+            transform: scale(0.9);
+        }
+
+        #cat-spin {
+            transform: scale(1.2);
+        }
+
+        .cat.active {
+            opacity: 1;
+            display: block;
+        }
+
+        .info {
+            font-size: 1.5rem;
+            color: #333;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        /* 새로운 랭킹 시스템 */
+        .rankings {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 100;
+            min-width: 320px;
+        }
+
+        .ranking-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #FFE6F0;
+        }
+
+        .ranking-header h3 {
+            color: #FF6B9D;
+            font-size: 1.3rem;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .ranking-total {
+            background: linear-gradient(135deg, #FF6B9D, #e55a8a);
+            color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .total-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .total-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .total-spins {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .total-countries {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        /* 새로운 Footer 위치 */
+        .footer {
+            position: fixed;
+            bottom: 5px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .footer a {
+            color: #666;
+            text-decoration: none;
+            transition: color 0.3s;
+            margin: 0 5px;
+        }
+
+        .footer a:hover {
+            color: #FF6B9D;
+        }
+    </style>
+</head>
+<body>
+    <div class="score-container">
+        <span id="score">NEW VERSION!</span>
+    </div>
+
+    <div class="container">
+        <div class="cat-container">
+            <img src="cat-static.gif" alt="Static Cat" class="cat active" id="cat-static">
+            <img src="cat-spin.gif" alt="Spinning Cat" class="cat" id="cat-spin">
+        </div>
+    </div>
+
+    <div class="rankings" id="rankingsList">
+        <div class="ranking-header">
+            <h3>🌍 전세계 랭킹</h3>
+        </div>
+        <div class="ranking-total">
+            <div class="total-item">
+                <span>전세계 총 클릭 수</span>
+                <span class="total-spins">123,456</span>
+            </div>
+            <div class="total-item">
+                <span>참여 국가 수</span>
+                <span class="total-countries">42개국</span>
+            </div>
+        </div>
+        <div style="background: #f9f9f9; border-radius: 10px; padding: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: white; margin-bottom: 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <span style="font-weight: bold; color: #FF6B9D; margin-right: 15px; min-width: 25px; font-size: 1.1rem;">1</span>
+                <span style="flex-grow: 1; text-align: left; color: #333; font-weight: 500;">대한민국</span>
+                <span style="font-weight: bold; color: #FF6B9D; min-width: 80px; text-align: right; font-size: 0.95rem;">45,678</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: white; margin-bottom: 8px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <span style="font-weight: bold; color: #FF6B9D; margin-right: 15px; min-width: 25px; font-size: 1.1rem;">2</span>
+                <span style="flex-grow: 1; text-align: left; color: #333; font-weight: 500;">미국</span>
+                <span style="font-weight: bold; color: #FF6B9D; min-width: 80px; text-align: right; font-size: 0.95rem;">23,456</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="info">🎉 새로운 버전이 적용되었습니다!</div>
+
+    <div class="footer">
+        <a href="/terms.html">이용약관</a> | 
+        <a href="/privacy.html">개인정보처리방침</a>
+    </div>
+</body>
+</html> 
