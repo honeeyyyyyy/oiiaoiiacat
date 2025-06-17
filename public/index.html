@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>OIIA OIIA CAT - 고양이 돌리기 게임 [FRESH DEPLOY v6.0]</title>
+    <title>OIIA OIIA CAT - 시각장애 고양이 Ethel의 감동적인 돌리기 게임 [CONTENT RICH v7.0]</title>
     
     <!-- 완전 새로운 캐시 무효화 v6.0 -->
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate, max-age=0, private">
@@ -13,8 +13,8 @@
     <meta name="last-modified" content="2025-06-17-fresh-deployment">
     <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
     
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6655272031679500" crossorigin="anonymous"></script>
+    <!-- Google AdSense - 임시 비활성화 -->
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6655272031679500" crossorigin="anonymous"></script> -->
     
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-H65QPY6YZ5"></script>
@@ -30,12 +30,18 @@
     <meta name="naver-site-verification" content="b6105c73b9b492eda2ed8b1e05c3a013d76ea549" />
     
     <!-- SEO 메타 태그 -->
-    <meta name="description" content="OIIA OIIA CAT - 귀여운 고양이를 돌려보세요! 전 세계 사람들과 함께하는 고양이 돌리기 게임">
-    <meta name="keywords" content="고양이 게임, OIIA CAT, 고양이 돌리기, spinning cat, OIIA OIIA, 오이야 고양이">
-    <meta property="og:title" content="OIIA OIIA CAT - 고양이 돌리기 게임">
-    <meta property="og:description" content="귀여운 고양이를 돌려보세요! 전 세계 사람들과 함께하는 고양이 돌리기 게임">
+    <meta name="description" content="OIIA OIIA CAT - 시각장애 고양이 Ethel의 감동적인 이야기를 담은 고양이 돌리기 게임. 전 세계 플레이어들과 함께하는 재미있는 클릭 게임으로 동물 보호의 의미도 담고 있습니다.">
+    <meta name="keywords" content="고양이 게임, OIIA CAT, 고양이 돌리기, spinning cat, OIIA OIIA, 오이야 고양이, Ethel, 시각장애 고양이, 동물 보호, 클릭 게임, 웹 게임, 무료 게임">
+    <meta property="og:title" content="OIIA OIIA CAT - 시각장애 고양이 Ethel의 감동적인 돌리기 게임">
+    <meta property="og:description" content="시각장애를 가진 특별한 고양이 Ethel의 이야기를 담은 따뜻한 클릭 게임. 전 세계 플레이어들과 순위를 경쟁하며 동물 보호의 의미를 되새겨보세요.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://oiiaoiiacat.com">
+    <meta name="author" content="OIIA OIIA CAT Team">
+    <meta name="subject" content="동물 보호 의식을 높이는 고양이 게임">
+    <meta name="copyright" content="© 2025 OIIA OIIA CAT">
+    <meta name="language" content="Korean">
+    <meta name="revisit-after" content="7 days">
+    <meta name="distribution" content="global">
     
     <!-- 완전 인라인 스타일 -->
     <style>
@@ -173,6 +179,93 @@
             display: none;
         }
 
+        /* 콘텐츠 정보 섹션 */
+        .content-info {
+            position: fixed !important;
+            bottom: 0 !important;
+            right: 20px !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-radius: 20px 20px 0 0 !important;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1) !important;
+            padding: 0 !important;
+            max-height: 70vh !important;
+            overflow: hidden !important;
+            z-index: 99 !important;
+            min-width: 350px !important;
+            max-width: 400px !important;
+            display: block !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .content-info.collapsed {
+            max-height: 60px !important;
+        }
+
+        .content-toggle {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+            font-weight: bold;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+
+        .content-toggle:hover {
+            background: linear-gradient(135deg, #45a049, #3d8b40);
+        }
+
+        .content-body {
+            padding: 20px;
+            max-height: calc(70vh - 60px);
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .content-info.collapsed .content-body {
+            display: none;
+        }
+
+        .info-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .info-section h3 {
+            color: #4CAF50;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .info-section p {
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .info-section ul {
+            color: #555;
+            padding-left: 20px;
+        }
+
+        .info-section li {
+            margin-bottom: 8px;
+        }
+
+        .info-section strong {
+            color: #333;
+        }
+
         .ranking-header {
             text-align: center;
             margin-bottom: 20px;
@@ -292,39 +385,59 @@
 
         /* 모바일 대응 */
         @media (max-width: 768px) {
-            .cat { height: 85vh; }
-            .rankings {
-                min-width: 280px !important;
-                max-width: 95vw !important;
-                font-size: 0.9rem !important;
+            .cat { height: 80vh; }
+            .content-info {
+                right: 10px !important;
+                left: 10px !important;
+                min-width: auto !important;
+                max-width: none !important;
+                font-size: 0.85rem !important;
             }
-            .ranking-toggle {
+            .content-toggle {
                 padding: 12px 15px !important;
-                font-size: 0.9rem !important;
+                font-size: 0.85rem !important;
             }
-            .ranking-content {
+            .content-body {
                 padding: 15px !important;
                 font-size: 0.8rem !important;
             }
-            .ranking-header h3 {
+            .info-section h3 {
                 font-size: 1rem !important;
-                margin-bottom: 10px !important;
+            }
+            .rankings {
+                right: 10px !important;
+                left: auto !important;
+                min-width: 280px !important;
+                max-width: 45vw !important;
+                font-size: 0.8rem !important;
+            }
+            .ranking-toggle {
+                padding: 10px 12px !important;
+                font-size: 0.8rem !important;
+            }
+            .ranking-content {
+                padding: 12px !important;
+                font-size: 0.75rem !important;
+            }
+            .ranking-header h3 {
+                font-size: 0.9rem !important;
+                margin-bottom: 8px !important;
             }
             .ranking-total {
-                padding: 15px !important;
-                margin-bottom: 15px !important;
+                padding: 12px !important;
+                margin-bottom: 12px !important;
             }
             .total-item {
-                margin-bottom: 8px !important;
-                font-size: 0.75rem !important;
+                margin-bottom: 6px !important;
+                font-size: 0.7rem !important;
             }
             .total-spins, .total-countries {
-                font-size: 1rem !important;
+                font-size: 0.85rem !important;
             }
             .ranking-item {
-                padding: 8px 10px !important;
-                margin-bottom: 6px !important;
-                font-size: 0.75rem !important;
+                padding: 6px 8px !important;
+                margin-bottom: 4px !important;
+                font-size: 0.65rem !important;
             }
             .score-container { font-size: 2.5rem; }
             .footer {
@@ -345,6 +458,44 @@
         <div class="cat-container">
             <img src="cat-static.gif" alt="Static Cat" class="cat active" id="cat-static">
             <img src="cat-spin.gif" alt="Spinning Cat" class="cat" id="cat-spin">
+        </div>
+    </div>
+
+    <!-- 게임 정보 콘텐츠 -->
+    <div class="content-info collapsed" id="contentInfo">
+        <div class="content-toggle" onclick="toggleContent()">
+            📖 게임 정보 보기 ↑
+        </div>
+        <div class="content-body">
+            <div class="info-section">
+                <h3>🐱 OIIA OIIA CAT이란?</h3>
+                <p>OIIA OIIA CAT은 인터넷에서 유명해진 귀여운 고양이 "Ethel"을 기반으로 한 재미있는 클릭 게임입니다. Ethel은 선천적으로 시각 장애를 가지고 태어난 13살 고양이로, 식사 시간마다 빙글빙글 도는 특별한 습관이 있어 많은 사람들의 사랑을 받고 있습니다.</p>
+            </div>
+            
+            <div class="info-section">
+                <h3>🎮 게임 방법</h3>
+                <ul>
+                    <li><strong>마우스 클릭:</strong> 고양이를 클릭하면 돌기 시작합니다</li>
+                    <li><strong>스페이스바:</strong> 키보드 스페이스바로도 조작 가능합니다</li>
+                    <li><strong>터치:</strong> 모바일에서는 화면을 터치하세요</li>
+                    <li><strong>효과음:</strong> 고양이가 돌 때 귀여운 효과음이 재생됩니다</li>
+                </ul>
+            </div>
+            
+            <div class="info-section">
+                <h3>🌍 전세계 순위</h3>
+                <p>전 세계 플레이어들과 함께 고양이 돌리기 횟수를 경쟁해보세요! 실시간으로 업데이트되는 국가별 순위를 확인하고, 당신의 나라를 1위로 만들어보세요.</p>
+            </div>
+            
+            <div class="info-section">
+                <h3>💖 Ethel의 이야기</h3>
+                <p>Ethel은 Cat Welfare Association에서 온 특별한 고양이입니다. 아무도 입양하려 하지 않았던 Ethel을 Donna라는 여성이 "첫눈에 반해서" 입양했습니다. 이후 Ethel의 아빠가 Facebook에 올린 사진이 화제가 되면서, 전 세계적으로 유명한 OIIA OIIA 밈이 되었습니다.</p>
+            </div>
+            
+            <div class="info-section">
+                <h3>🎯 게임의 의미</h3>
+                <p>이 게임은 단순한 재미를 넘어서, 특별한 도움이 필요한 동물들에 대한 관심과 사랑을 표현하는 의미를 담고 있습니다. Ethel처럼 장애를 가진 동물들도 충분히 사랑받을 자격이 있다는 메시지를 전달합니다.</p>
+            </div>
         </div>
     </div>
 
@@ -426,6 +577,19 @@
             } else {
                 rankings.classList.add('collapsed');
                 toggle.innerHTML = '🌍 전세계 랭킹 보기 ↑';
+            }
+        }
+
+        function toggleContent() {
+            const content = document.getElementById('contentInfo');
+            const toggle = document.querySelector('.content-toggle');
+            
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                toggle.innerHTML = '📖 게임 정보 닫기 ↓';
+            } else {
+                content.classList.add('collapsed');
+                toggle.innerHTML = '📖 게임 정보 보기 ↑';
             }
         }
 
