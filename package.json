@@ -1,7 +1,7 @@
 {
-  "name": "oiiaoiiacat-new",
-  "version": "2.0.0",
-  "description": "OIIA OIIA CAT spinning game with global rankings",
+  "name": "oiiaoiiacat-fresh",
+  "version": "3.0.0",
+  "description": "OIIA OIIA CAT spinning game with global rankings - Fresh Deploy",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
