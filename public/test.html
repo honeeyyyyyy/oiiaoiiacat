@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OIIA OIIA CAT - 테스트 버전</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #FF6B9D, #e55a8a);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .new-features {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .footer-demo {
+            position: fixed;
+            bottom: 5px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: #666;
+            backdrop-filter: blur(10px);
+        }
+        
+        .ranking-demo {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            min-width: 250px;
+            color: #333;
+        }
+        
+        .ranking-header {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #FF6B9D;
+            font-weight: bold;
+        }
+        
+        .ranking-total {
+            background: linear-gradient(135deg, #FF6B9D, #e55a8a);
+            color: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎉 새 버전 적용 성공!</h1>
+        <p style="font-size: 1.2rem;">이 페이지가 보인다면 배포가 성공한 것입니다!</p>
+        
+        <div class="new-features">
+            <h3>✨ 새로운 기능들:</h3>
+            <ul>
+                <li>🌍 전세계 클릭 수 통합 랭킹</li>
+                <li>📍 Footer가 우측 하단으로 이동</li>
+                <li>🎨 깔끔한 이용약관 페이지</li>
+                <li>📱 모바일 최적화</li>
+            </ul>
+        </div>
+        
+        <p style="margin-top: 30px;">
+            <a href="/index.html" style="background: white; color: #FF6B9D; padding: 15px 30px; text-decoration: none; border-radius: 25px; font-weight: bold;">
+                메인 게임으로 가기
+            </a>
+        </p>
+    </div>
+    
+    <!-- 새로운 Footer 위치 데모 -->
+    <div class="footer-demo">
+        이용약관 | 개인정보처리방침
+    </div>
+    
+    <!-- 새로운 랭킹 시스템 데모 -->
+    <div class="ranking-demo">
+        <div class="ranking-header">🌍 전세계 랭킹</div>
+        <div class="ranking-total">
+            <div>전세계 총 클릭 수</div>
+            <div style="font-size: 1.2em; font-weight: bold;">123,456</div>
+        </div>
+        <div style="background: #f9f9f9; padding: 10px; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span>1. 대한민국</span>
+                <span style="color: #FF6B9D; font-weight: bold;">45,678</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>2. 미국</span>
+                <span style="color: #FF6B9D; font-weight: bold;">23,456</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
