@@ -17,45 +17,6 @@
             "dest": "/server.js"
         }
     ],
-    "headers": [
-        {
-            "source": "/(.*)",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-cache, no-store, must-revalidate, max-age=0"
-                },
-                {
-                    "key": "Pragma",
-                    "value": "no-cache"
-                },
-                {
-                    "key": "Expires",
-                    "value": "0"
-                },
-                {
-                    "key": "Last-Modified",
-                    "value": "Tue, 17 Jun 2025 12:00:00 GMT"
-                },
-                {
-                    "key": "ETag",
-                    "value": "\"fresh-v6.0-20250617\""
-                },
-                {
-                    "key": "X-Content-Type-Options",
-                    "value": "nosniff"
-                },
-                {
-                    "key": "X-Frame-Options",
-                    "value": "SAMEORIGIN"
-                },
-                {
-                    "key": "Vary",
-                    "value": "*"
-                }
-            ]
-        }
-    ],
     "env": {
         "MONGODB_URI": "mongodb+srv://honeeyyyy:qwer1234@cluster0.1ff5kkx.mongodb.net/"
     }
