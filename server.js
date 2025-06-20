@@ -123,7 +123,7 @@ async function getCountryFromIP(ip) {
 app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'ok', 
-        version: '9.0.final.geoapi',
+        version: '10.0.world-rank',
         totalClicks: clickData.length,
         totalCountries: Object.keys(countryStats).length,
         timestamp: new Date().toISOString()
@@ -162,7 +162,7 @@ app.post('/api/click', async (req, res) => {
             countryName: countryName,
             ip: clientIP,
             timestamp: new Date(),
-            version: req.body.version || '9.0.final'
+            version: req.body.version || '10.0.world-rank'
         };
         
         clickData.push(clickRecord);
