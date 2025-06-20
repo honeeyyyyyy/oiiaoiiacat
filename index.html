@@ -334,7 +334,7 @@
 </head>
 <body>
     <!-- 버전 표시 (임시) -->
-    <div class="version-indicator">v9.0 FINAL - 2025.06.21</div>
+    <div class="version-indicator">v9.0 GEO-API - 2025.06.21</div>
 
     <div class="game-container">
         <h1 class="title">OIIA OIIA CAT</h1>
@@ -386,6 +386,7 @@
             <div class="global-stats">
                 <div class="stat-item">🌍 전세계 총 클릭 수: <span id="totalClicks">로딩중...</span></div>
                 <div class="stat-item">🏴 참여 국가 수: <span id="totalCountries">로딩중...</span></div>
+                <div class="stat-item">🔥 실시간 통계: <span id="liveStats">로딩중...</span></div>
             </div>
             <div class="country-list" id="countryList">
                 <div style="text-align: center; color: #666;">랭킹을 불러오는 중...</div>
@@ -495,7 +496,14 @@
                 });
                 
                 if (response.ok) {
-                    console.log('클릭이 서버에 기록되었습니다.');
+                    const result = await response.json();
+                    if (result.success && result.countryName) {
+                        console.log(`클릭이 서버에 기록되었습니다. 국가: ${result.countryName}`);
+                        // 클릭 시 국가 정보를 잠깐 보여주기
+                        showCountryNotification(result.countryName);
+                    } else {
+                        console.log('클릭이 서버에 기록되었습니다.');
+                    }
                 }
             } catch (error) {
                 console.error('클릭 전송 실패:', error);
@@ -512,16 +520,21 @@
                 document.getElementById('totalClicks').textContent = data.totalClicks?.toLocaleString() || '0';
                 document.getElementById('totalCountries').textContent = data.totalCountries || '0';
                 
-                // 국가별 랭킹 업데이트
+                // 국가별 랭킹 업데이트 (새로운 API 응답 형식)
                 const countryList = document.getElementById('countryList');
                 if (data.rankings && data.rankings.length > 0) {
                     countryList.innerHTML = data.rankings.map((country, index) => `
                         <div class="country-item">
                             <span class="country-rank">${index + 1}위</span>
-                            <span class="country-name">${country._id || '알 수 없음'}</span>
+                            <span class="country-name">${country.countryName || country._id || '알 수 없음'}</span>
                             <span class="country-clicks">${country.clicks.toLocaleString()}회</span>
                         </div>
                     `).join('');
+                    
+                    // 최근 활동 표시 추가
+                    if (data.recentClicks !== undefined) {
+                        document.getElementById('totalClicks').textContent = `${data.totalClicks.toLocaleString()} (24시간 내: ${data.recentClicks.toLocaleString()})`;
+                    }
                 } else {
                     countryList.innerHTML = '<div style="text-align: center; color: #666;">아직 랭킹 데이터가 없습니다.</div>';
                 }
@@ -533,12 +546,34 @@
             }
         }
 
+        // 실시간 통계 로드
+        async function loadLiveStats() {
+            try {
+                const response = await fetch('/api/stats?t=' + Date.now());
+                const stats = await response.json();
+                
+                if (stats && !stats.error) {
+                    const topCountryText = stats.topCountry ? 
+                        `1위: ${stats.topCountry.name} (${stats.topCountry.clicks}회)` : 
+                        '데이터 없음';
+                    
+                    document.getElementById('liveStats').textContent = topCountryText;
+                }
+            } catch (error) {
+                console.error('실시간 통계 로딩 실패:', error);
+                document.getElementById('liveStats').textContent = '로딩 실패';
+            }
+        }
+
         // 페이지 로드 시 랭킹 로드
         window.addEventListener('load', () => {
-            console.log('OIIA OIIA CAT v9.0 FINAL 시작!');
+            console.log('OIIA OIIA CAT v9.0 GEO-API 시작!');
             loadRankings();
+            loadLiveStats();
             // 30초마다 랭킹 업데이트
             setInterval(loadRankings, 30000);
+            // 10초마다 실시간 통계 업데이트
+            setInterval(loadLiveStats, 10000);
         });
 
         // 사용자 인터랙션 후 오디오 컨텍스트 활성화
@@ -551,9 +586,63 @@
             document.removeEventListener('click', initAudio);
         }, { once: true });
 
+        // 국가 알림 표시 함수
+        function showCountryNotification(countryName) {
+            // 기존 알림이 있으면 제거
+            const existingNotification = document.getElementById('countryNotification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // 새 알림 생성
+            const notification = document.createElement('div');
+            notification.id = 'countryNotification';
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(255, 255, 255, 0.95);
+                padding: 15px 25px;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-size: 1.2rem;
+                font-weight: bold;
+                color: #333;
+                backdrop-filter: blur(10px);
+                animation: fadeInOut 2s ease;
+            `;
+            notification.textContent = `📍 ${countryName}에서 플레이 중!`;
+            
+            // CSS 애니메이션 추가
+            if (!document.getElementById('countryNotificationStyle')) {
+                const style = document.createElement('style');
+                style.id = 'countryNotificationStyle';
+                style.textContent = `
+                    @keyframes fadeInOut {
+                        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                        20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                        80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                        100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(notification);
+            
+            // 2초 후 제거
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 2000);
+        }
+
         // 캐시 무력화를 위한 추가 스크립트
         setInterval(() => {
-            console.log('OIIA OIIA CAT v9.0 FINAL 활성화됨 - ' + new Date().toLocaleString());
+            console.log('OIIA OIIA CAT v9.0 GEO-API 활성화됨 - ' + new Date().toLocaleString());
         }, 60000);
     </script>
 </body>
