@@ -1,16 +1,29 @@
 {
     "version": 2,
-    "name": "oiiaoiiacat-fresh",
-    "public": true,
-    "cleanUrls": true,
-    "trailingSlash": false,
+    "name": "oiiaoiiacat-final-v9",
+    "builds": [
+        {
+            "src": "server.js",
+            "use": "@vercel/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "dest": "/server.js"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/server.js"
+        }
+    ],
     "headers": [
         {
             "source": "/(.*)",
             "headers": [
                 {
                     "key": "Cache-Control",
-                    "value": "no-cache, no-store, must-revalidate, max-age=0, private"
+                    "value": "no-cache, no-store, must-revalidate, max-age=0"
                 },
                 {
                     "key": "Pragma",
@@ -18,7 +31,7 @@
                 },
                 {
                     "key": "Expires",
-                    "value": "-1"
+                    "value": "0"
                 },
                 {
                     "key": "Last-Modified",
@@ -42,5 +55,8 @@
                 }
             ]
         }
-    ]
+    ],
+    "env": {
+        "MONGODB_URI": "mongodb+srv://honeeyyyy:qwer1234@cluster0.1ff5kkx.mongodb.net/"
+    }
 } 

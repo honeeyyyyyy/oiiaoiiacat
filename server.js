@@ -5,13 +5,23 @@ const cors = require('cors');
 const geoip = require('geoip-lite');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const { MongoClient } = require('mongodb');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// MongoDB 연결 설정
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://honeeyyyy:qwer1234@cluster0.1ff5kkx.mongodb.net/';
+const DB_NAME = 'oiiaoiiacat';
+const COLLECTION_NAME = 'clicks';
+
+let db;
+let clicksCollection;
+
 // 미들웨어 설정
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 캐시 무효화 미들웨어
 app.use((req, res, next) => {
@@ -22,37 +32,45 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+// 캐시 방지 헤더
+app.use((req, res, next) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    next();
+});
 
-// MongoDB 연결 설정
-const connectDB = async () => {
+// 속도 제한 설정 (1분당 60회)
+const limiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 60
+});
+
+app.use('/api', limiter);
+
+// MongoDB 연결
+async function connectToDatabase() {
     try {
-        await mongoose.connect(process.env.MONGODB_URI, {
+        const client = new MongoClient(MONGODB_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 5000
         });
-        console.log('MongoDB 연결 성공!');
-    } catch (err) {
-        console.error('MongoDB 연결 실패:', err.message);
-        // 5초 후 재시도
-        setTimeout(connectDB, 5000);
+        
+        await client.connect();
+        console.log('MongoDB에 성공적으로 연결되었습니다.');
+        
+        db = client.db(DB_NAME);
+        clicksCollection = db.collection(COLLECTION_NAME);
+        
+        // 컬렉션 인덱스 생성
+        await clicksCollection.createIndex({ country: 1 });
+        await clicksCollection.createIndex({ timestamp: 1 });
+        
+    } catch (error) {
+        console.error('MongoDB 연결 실패:', error);
+        process.exit(1);
     }
-};
-
-// MongoDB 연결 이벤트 리스너
-mongoose.connection.on('connected', () => {
-    console.log('Mongoose가 MongoDB에 연결되었습니다.');
-});
-
-mongoose.connection.on('error', (err) => {
-    console.error('MongoDB 연결 에러:', err);
-});
-
-mongoose.connection.on('disconnected', () => {
-    console.log('MongoDB 연결이 끊어졌습니다. 재연결을 시도합니다...');
-    connectDB();
-});
+}
 
 // 스키마 정의
 const CountrySchema = new mongoose.Schema({
@@ -64,97 +82,130 @@ const CountrySchema = new mongoose.Schema({
 
 const Country = mongoose.model('Country', CountrySchema);
 
-// 속도 제한 설정 (1분당 60회)
-const limiter = rateLimit({
-    windowMs: 60 * 1000,
-    max: 60
-});
-
-app.use('/api', limiter);
-
-// API 엔드포인트
-app.post('/api/spin', async (req, res) => {
+// 클릭 기록 API
+app.post('/api/click', async (req, res) => {
     try {
-        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-        const geo = geoip.lookup(ip);
+        // 클라이언트 IP 주소 가져오기
+        const clientIP = req.headers['x-forwarded-for'] || 
+                        req.headers['x-real-ip'] || 
+                        req.connection.remoteAddress || 
+                        req.socket.remoteAddress ||
+                        (req.connection.socket ? req.connection.socket.remoteAddress : null) ||
+                        '127.0.0.1';
+
+        // IP에서 국가 정보 추출
+        const geo = geoip.lookup(clientIP);
+        const country = geo ? geo.country : 'Unknown';
         
-        if (!geo) {
-            return res.status(400).json({ error: '위치를 찾을 수 없습니다.' });
-        }
-
-        // 국가 이름 매핑
-        const countryNames = {
-            'KR': '대한민국',
-            'US': '미국',
-            'JP': '일본',
-            'CN': '중국',
-            'GB': '영국',
-            'FR': '프랑스',
-            'DE': '독일',
-            'IT': '이탈리아',
-            'ES': '스페인',
-            'CA': '캐나다'
+        console.log(`클릭 기록: IP=${clientIP}, Country=${country}`);
+        
+        // MongoDB에 클릭 데이터 저장
+        const clickData = {
+            country: country,
+            ip: clientIP,
+            timestamp: new Date(),
+            userAgent: req.headers['user-agent'] || 'Unknown'
         };
-
-        const countryName = countryNames[geo.country] || geo.country;
-
-        const country = await Country.findOneAndUpdate(
-            { countryCode: geo.country },
-            { 
-                $inc: { totalSpins: 1 },
-                $set: { 
-                    countryName: countryName,
-                    lastUpdated: new Date()
-                }
-            },
-            { upsert: true, new: true }
-        );
-
-        res.json({ success: true, country });
+        
+        await clicksCollection.insertOne(clickData);
+        
+        res.json({ 
+            success: true, 
+            country: country,
+            message: '클릭이 기록되었습니다.' 
+        });
+        
     } catch (error) {
-        console.error('스핀 업데이트 에러:', error);
-        res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+        console.error('클릭 저장 오류:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: '클릭 저장에 실패했습니다.' 
+        });
     }
 });
 
+// 랭킹 조회 API
 app.get('/api/rankings', async (req, res) => {
     try {
-        // 상위 10개국 랭킹
-        const rankings = await Country.find()
-            .sort('-totalSpins')
-            .limit(10)
-            .select('countryCode countryName totalSpins lastUpdated');
-        
-        // 전세계 총 스핀 수 계산
-        const totalResult = await Country.aggregate([
-            { $group: { _id: null, totalSpins: { $sum: '$totalSpins' } } }
-        ]);
-        const worldTotalSpins = totalResult.length > 0 ? totalResult[0].totalSpins : 0;
-        
-        // 상위 10개국의 총 스핀 수 계산
-        const totalSpinsTop10 = rankings.reduce((sum, country) => sum + country.totalSpins, 0);
-        
-        // 참여 국가 수
-        const totalCountries = await Country.countDocuments();
-        
+        // 국가별 클릭 수 집계
+        const rankings = await clicksCollection.aggregate([
+            {
+                $group: {
+                    _id: '$country',
+                    clicks: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { clicks: -1 }
+            },
+            {
+                $limit: 10
+            }
+        ]).toArray();
+
+        // 전체 통계
+        const totalClicks = await clicksCollection.countDocuments();
+        const totalCountries = await clicksCollection.distinct('country');
+
         res.json({
-            rankings,
-            worldTotalSpins,        // 전세계 총 클릭 수
-            totalSpinsTop10,        // 상위 10개국 총 클릭 수
-            totalCountries,         // 참여 국가 수
-            lastUpdated: new Date()
+            success: true,
+            rankings: rankings,
+            totalClicks: totalClicks,
+            totalCountries: totalCountries.length
         });
+        
     } catch (error) {
-        console.error('순위 조회 에러:', error);
-        res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+        console.error('랭킹 조회 오류:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: '랭킹 조회에 실패했습니다.',
+            rankings: [],
+            totalClicks: 0,
+            totalCountries: 0
+        });
     }
+});
+
+// 루트 경로
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// 404 처리
+app.use((req, res) => {
+    res.status(404).send('페이지를 찾을 수 없습니다.');
+});
+
+// 에러 처리
+app.use((error, req, res, next) => {
+    console.error('서버 에러:', error);
+    res.status(500).send('서버 내부 오류가 발생했습니다.');
 });
 
 // 서버 시작
-connectDB().then(() => {
-    app.listen(PORT, () => {
-        console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
-    });
-}).catch(err => {
-    console.error('서버 시작 실패:', err);
-}); 
+async function startServer() {
+    try {
+        await connectToDatabase();
+        
+        app.listen(PORT, () => {
+            console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
+            console.log(`로컬 주소: http://localhost:${PORT}`);
+        });
+    } catch (error) {
+        console.error('서버 시작 실패:', error);
+        process.exit(1);
+    }
+}
+
+// 우아한 종료 처리
+process.on('SIGINT', async () => {
+    console.log('\n서버를 종료합니다...');
+    process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+    console.log('\n서버를 종료합니다...');
+    process.exit(0);
+});
+
+startServer(); 
