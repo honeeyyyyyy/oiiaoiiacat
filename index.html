@@ -37,6 +37,7 @@
         }
 
         body {
+            font-family: 'Arial', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols';
             display: flex;
             justify-content: center;
             align-items: center;
@@ -324,6 +325,14 @@
                 padding: 5px 10px !important;
             }
         }
+
+        /* 이모지 전용 스타일 */
+        .country-flag {
+            font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Android Emoji', 'EmojiSymbols', sans-serif;
+            font-size: 1.2em;
+            margin-right: 8px;
+            display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -437,10 +446,23 @@
                     if (data.rankings && data.rankings.length > 0) {
                         leaderboardContent.innerHTML = data.rankings.map((country, index) => {
                             console.log('Country data:', country); // 디버깅용
+                            
+                            // 국기 매핑 (확실한 표시를 위해)
+                            const flagMap = {
+                                'KR': '🇰🇷', 'US': '🇺🇸', 'JP': '🇯🇵', 'CN': '🇨🇳', 'GB': '🇬🇧',
+                                'DE': '🇩🇪', 'FR': '🇫🇷', 'CA': '🇨🇦', 'AU': '🇦🇺', 'BR': '🇧🇷',
+                                'IN': '🇮🇳', 'RU': '🇷🇺', 'IT': '🇮🇹', 'ES': '🇪🇸', 'NL': '🇳🇱'
+                            };
+                            
+                            const flag = country.countryFlag || flagMap[country.country] || '🏳️';
+                            
                             return `
                             <div class="ranking-item">
                                 <span class="ranking-position">${index + 1}</span>
-                                <span class="ranking-country">${country.countryFlag || '🏳️'} ${country.countryName}</span>
+                                <span class="ranking-country">
+                                    <span class="country-flag">${flag}</span>
+                                    ${country.countryName}
+                                </span>
                                 <span class="ranking-spins">${country.clicks.toLocaleString()}</span>
                             </div>
                         `;
@@ -459,27 +481,42 @@
                 leaderboardContent.innerHTML = `
                     <div class="ranking-item">
                         <span class="ranking-position">1</span>
-                        <span class="ranking-country">🇰🇷 대한민국</span>
+                        <span class="ranking-country">
+                            <span class="country-flag">🇰🇷</span>
+                            대한민국
+                        </span>
                         <span class="ranking-spins">567</span>
                     </div>
                     <div class="ranking-item">
                         <span class="ranking-position">2</span>
-                        <span class="ranking-country">🇺🇸 미국</span>
+                        <span class="ranking-country">
+                            <span class="country-flag">🇺🇸</span>
+                            미국
+                        </span>
                         <span class="ranking-spins">345</span>
                     </div>
                     <div class="ranking-item">
                         <span class="ranking-position">3</span>
-                        <span class="ranking-country">🇯🇵 일본</span>
+                        <span class="ranking-country">
+                            <span class="country-flag">🇯🇵</span>
+                            일본
+                        </span>
                         <span class="ranking-spins">234</span>
                     </div>
                     <div class="ranking-item">
                         <span class="ranking-position">4</span>
-                        <span class="ranking-country">🇨🇳 중국</span>
+                        <span class="ranking-country">
+                            <span class="country-flag">🇨🇳</span>
+                            중국
+                        </span>
                         <span class="ranking-spins">123</span>
                     </div>
                     <div class="ranking-item">
                         <span class="ranking-position">5</span>
-                        <span class="ranking-country">🇬🇧 영국</span>
+                        <span class="ranking-country">
+                            <span class="country-flag">🇬🇧</span>
+                            영국
+                        </span>
                         <span class="ranking-spins">88</span>
                     </div>
                 `;
