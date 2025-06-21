@@ -401,7 +401,7 @@
 </head>
 <body>
     <!-- 버전 표시 (임시) -->
-    <div class="version-indicator">v10.0 WORLD-RANK - 2025.06.21</div>
+    <div class="version-indicator">v11.0 POPCAT-STYLE - 2025.06.21</div>
 
     <div class="game-container">
         <h1 class="title">OIIA OIIA CAT</h1>
@@ -563,7 +563,7 @@
         // 서버에 클릭 전송
         async function sendClick() {
             try {
-                const response = await fetch(`/api/click?v=10.0&t=${Date.now()}`, {
+                const response = await fetch(`/api/click?v=11.0&t=${Date.now()}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -573,7 +573,7 @@
                     },
                     body: JSON.stringify({ 
                         timestamp: Date.now(),
-                        version: 'v10.0.world-rank'
+                        version: 'v11.0.popcat-style'
                     })
                 });
                 
@@ -595,7 +595,7 @@
         // 랭킹 데이터 로드
         async function loadRankings() {
             try {
-                const response = await fetch(`/api/rankings?v=10.0&t=${Date.now()}`, {
+                const response = await fetch(`/api/rankings?v=11.0&t=${Date.now()}`, {
                     headers: {
                         'Cache-Control': 'no-cache, no-store, must-revalidate',
                         'Pragma': 'no-cache',
@@ -632,7 +632,7 @@
         // 실시간 통계 로드
         async function loadLiveStats() {
             try {
-                const response = await fetch(`/api/stats?v=10.0&t=${Date.now()}`, {
+                const response = await fetch(`/api/stats?v=11.0&t=${Date.now()}`, {
                     headers: {
                         'Cache-Control': 'no-cache, no-store, must-revalidate',
                         'Pragma': 'no-cache',
@@ -656,7 +656,7 @@
 
         // 페이지 로드 시 랭킹 로드
         window.addEventListener('load', () => {
-            console.log('OIIA OIIA CAT v10.0 WORLD-RANK 시작!');
+            console.log('OIIA OIIA CAT v11.0 POPCAT-STYLE 시작!');
             loadRankings();
             loadLiveStats();
             // 30초마다 랭킹 업데이트
@@ -731,7 +731,7 @@
 
         // 캐시 무력화를 위한 추가 스크립트
         setInterval(() => {
-            console.log('OIIA OIIA CAT v10.0 WORLD-RANK 활성화됨 - ' + new Date().toLocaleString());
+            console.log('OIIA OIIA CAT v11.0 POPCAT-STYLE 활성화됨 - ' + new Date().toLocaleString());
         }, 60000);
     </script>
 </body>

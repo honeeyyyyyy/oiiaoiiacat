@@ -77,7 +77,7 @@ initData();
 app.get('/api/health', (req, res) => {
     res.json({ 
         status: 'ok',
-        version: '10.0.simple',
+        version: '11.0.popcat-style',
         totalClicks: clickData.length,
         totalCountries: Object.keys(countryStats).length
     });
