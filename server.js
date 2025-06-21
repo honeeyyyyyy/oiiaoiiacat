@@ -16,37 +16,15 @@ app.use(cors({
 app.use(express.json());
 app.use(express.static('.'));
 
-// 메모리 기반 데이터 저장소
+// 실제 사용자 클릭 데이터만 저장
 let countryData = {};
 let totalClicks = 0;
 
-// 간단한 IP 기반 국가 매핑 (테스트용)
-const ipToCountry = {
-    '127.0.0.1': '대한민국',
-    'localhost': '대한민국'
-};
-
-// 기본 국가 목록
-const defaultCountries = [
-    '대한민국', '미국', '일본', '중국', '독일', 
-    '프랑스', '영국', '캐나다', '호주', '브라질',
-    '인도', '러시아', '이탈리아', '스페인', '네덜란드'
-];
-
-// 초기 데이터 설정
-defaultCountries.forEach(country => {
-    countryData[country] = Math.floor(Math.random() * 1000);
-    totalClicks += countryData[country];
-});
-
-// IP에서 국가 추출
+// 실제 IP 기반 국가 감지 (기본값만 설정)
 function getCountryFromIP(ip) {
-    // 로컬 IP나 알려진 IP는 매핑 사용
-    if (ipToCountry[ip]) {
-        return ipToCountry[ip];
-    }
-    
-    // 기본적으로 대한민국 반환 (실제 환경에서는 IP API 사용)
+    // 실제 환경에서는 IP geolocation API를 사용하지만
+    // 현재는 간단하게 대한민국으로 설정
+    // 추후 실제 IP API 연동 시 여기를 수정
     return '대한민국';
 }
 
@@ -309,6 +287,13 @@ app.get('/', (req, res) => {
             font-style: italic;
         }
 
+        .no-data {
+            text-align: center;
+            color: #666;
+            padding: 30px;
+            font-style: italic;
+        }
+
         /* 푸터 */
         .footer {
             position: fixed;
@@ -377,7 +362,7 @@ app.get('/', (req, res) => {
     </style>
 </head>
 <body>
-    <div class="version">v2.0 SERVER</div>
+    <div class="version">v3.0 REAL</div>
     
     <div class="container">
         <div class="score-container">
@@ -419,7 +404,7 @@ app.get('/', (req, res) => {
                     <div>클릭 수</div>
                 </div>
                 <div id="leaderboardContent">
-                    <div class="loading">랭킹을 불러오는 중...</div>
+                    <div class="no-data">아직 클릭 데이터가 없습니다.<br>첫 번째 클릭을 해보세요! 🐱</div>
                 </div>
             </div>
         </div>
@@ -489,17 +474,17 @@ app.get('/', (req, res) => {
                 
                 const data = await response.json();
                 if (data.success) {
-                    console.log('Click recorded for ' + data.countryName + ': ' + data.clicks + ' total');
+                    console.log('실제 클릭 기록됨 - ' + data.countryName + ': ' + data.clicks + '회');
                     
                     // 랭킹이 열려있으면 업데이트
                     if (rankingVisible) {
                         loadRankings();
                     }
                 } else {
-                    console.error('Failed to record click:', data.error);
+                    console.error('클릭 기록 실패:', data.error);
                 }
             } catch (error) {
-                console.error('Error sending click:', error);
+                console.error('클릭 전송 오류:', error);
             }
         }
         
@@ -545,14 +530,14 @@ app.get('/', (req, res) => {
                             '</div>'
                         ).join('');
                     } else {
-                        leaderboardContent.innerHTML = '<div class="loading">아직 데이터가 없습니다...</div>';
+                        leaderboardContent.innerHTML = '<div class="no-data">아직 클릭 데이터가 없습니다.<br>첫 번째 클릭을 해보세요! 🐱</div>';
                     }
                 } else {
-                    console.error('Failed to load rankings:', data.error);
+                    console.error('랭킹 로드 실패:', data.error);
                     document.getElementById('leaderboardContent').innerHTML = '<div class="loading">랭킹을 불러올 수 없습니다</div>';
                 }
             } catch (error) {
-                console.error('Error loading rankings:', error);
+                console.error('랭킹 로딩 오류:', error);
                 document.getElementById('leaderboardContent').innerHTML = '<div class="loading">랭킹 로딩 중 오류 발생</div>';
             }
         }
@@ -567,7 +552,7 @@ app.get('/', (req, res) => {
         
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('OIIA OIIA CAT v2.0 SERVER loaded!');
+            console.log('OIIA OIIA CAT v3.0 REAL - 실제 클릭 데이터만 사용!');
         });
         
         // 자동 랭킹 업데이트 (30초마다)
@@ -583,7 +568,7 @@ app.get('/', (req, res) => {
     res.send(htmlContent);
 });
 
-// 클릭 API
+// 실제 클릭 API - 가짜 데이터 없음
 app.post('/api/click', (req, res) => {
     try {
         const clientIP = req.headers['x-forwarded-for'] || 
@@ -594,14 +579,14 @@ app.post('/api/click', (req, res) => {
         
         const country = getCountryFromIP(clientIP);
         
-        // 국가별 클릭 수 증가
+        // 실제 사용자 클릭만 기록
         if (!countryData[country]) {
             countryData[country] = 0;
         }
         countryData[country]++;
         totalClicks++;
         
-        console.log(`Click from ${clientIP} (${country}): ${countryData[country]} total clicks`);
+        console.log(`실제 클릭 기록: ${clientIP} (${country}) - 총 ${countryData[country]}회 클릭`);
         
         res.json({
             success: true,
@@ -610,18 +595,18 @@ app.post('/api/click', (req, res) => {
             totalClicks: totalClicks
         });
     } catch (error) {
-        console.error('Error processing click:', error);
+        console.error('클릭 처리 오류:', error);
         res.status(500).json({
             success: false,
-            error: 'Failed to process click'
+            error: '클릭 처리 실패'
         });
     }
 });
 
-// 랭킹 API
+// 실제 랭킹 API - 실제 데이터만 반환
 app.get('/api/ranking', (req, res) => {
     try {
-        // 국가별 데이터를 배열로 변환하고 클릭 수로 정렬
+        // 실제 클릭 데이터만 사용
         const rankings = Object.keys(countryData)
             .map(country => ({
                 countryName: country,
@@ -630,6 +615,8 @@ app.get('/api/ranking', (req, res) => {
             .sort((a, b) => b.clicks - a.clicks)
             .slice(0, 10); // 상위 10개국만
         
+        console.log(`현재 실제 랭킹: ${rankings.length}개국, 총 ${totalClicks}회 클릭`);
+        
         res.json({
             success: true,
             rankings: rankings,
@@ -637,10 +624,10 @@ app.get('/api/ranking', (req, res) => {
             participatingCountries: Object.keys(countryData).length
         });
     } catch (error) {
-        console.error('Error getting rankings:', error);
+        console.error('랭킹 조회 오류:', error);
         res.status(500).json({
             success: false,
-            error: 'Failed to get rankings'
+            error: '랭킹 조회 실패'
         });
     }
 });
@@ -668,9 +655,8 @@ app.get('/privacy.html', (req, res) => {
 
 // 서버 시작
 app.listen(port, () => {
-    console.log(`OIIA OIIA CAT Server running on port ${port}`);
-    console.log(`Initial total clicks: ${totalClicks}`);
-    console.log(`Countries: ${Object.keys(countryData).length}`);
+    console.log(`OIIA OIIA CAT v3.0 REAL Server 시작 - 포트 ${port}`);
+    console.log(`실제 클릭 데이터만 사용: 총 ${totalClicks}회, ${Object.keys(countryData).length}개국`);
 });
 
 module.exports = app; 
