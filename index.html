@@ -330,13 +330,16 @@
             클릭 수: <span id="clickCount">0</span>
         </div>
         
-        <div class="cat-container" onclick="handleCatClick()">
+        <div class="cat-container" 
+             onmousedown="startSpin()" 
+             onmouseup="stopSpin()" 
+             onmouseleave="stopSpin()">
             <img id="cat-static" class="cat active" src="cat-static.gif" alt="OIIA OIIA CAT">
             <img id="cat-spin" class="cat" src="cat-spin.gif" alt="OIIA OIIA CAT Spinning">
         </div>
         
         <div class="info">
-            스페이스바 또는 클릭으로 고양이를 돌려보세요!
+            마우스를 누르고 있으면 고양이가 돌아가요! 🐱
         </div>
     </div>
 
@@ -391,8 +394,8 @@
         const clickCountElement = document.getElementById('clickCount');
         const spinSound = document.getElementById('spinSound');
         
-        // 고양이 클릭 처리
-        function handleCatClick() {
+        // 마우스 홀드 시작
+        function startSpin() {
             if (isSpinning) return;
             
             clickCount++;
@@ -403,21 +406,32 @@
             catSpin.classList.add('active');
             isSpinning = true;
             
-            // 소리 재생 (오류 무시)
+            // 소리 재생 (루프)
             try {
                 spinSound.currentTime = 0;
+                spinSound.loop = true;
                 spinSound.play().catch(() => {});
             } catch (e) {}
             
             // 서버에 클릭 전송
             sendClickToServer();
+        }
+        
+        // 마우스 홀드 종료
+        function stopSpin() {
+            if (!isSpinning) return;
             
-            // 1초 후 정적 이미지로 복원
-            setTimeout(() => {
-                catSpin.classList.remove('active');
-                catStatic.classList.add('active');
-                isSpinning = false;
-            }, 1000);
+            // 즉시 정적 이미지로 복원
+            catSpin.classList.remove('active');
+            catStatic.classList.add('active');
+            isSpinning = false;
+            
+            // 소리 즉시 중지
+            try {
+                spinSound.pause();
+                spinSound.currentTime = 0;
+                spinSound.loop = false;
+            } catch (e) {}
         }
         
         // 서버에 클릭 데이터 전송
@@ -503,13 +517,7 @@
             }
         }
         
-        // 키보드 이벤트 (스페이스바)
-        document.addEventListener('keydown', (event) => {
-            if (event.code === 'Space') {
-                event.preventDefault();
-                handleCatClick();
-            }
-        });
+        // 키보드 이벤트 제거 - 마우스 홀드만 허용
         
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', () => {

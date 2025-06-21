@@ -731,16 +731,22 @@ app.get('/api/ranking', (req, res) => {
     }
 });
 
-// 정적 파일 서빙
+// 정적 파일 서빙 - Content-Type 명시
 app.get('/cat-static.gif', (req, res) => {
+    res.setHeader('Content-Type', 'image/gif');
+    res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(path.join(__dirname, 'cat-static.gif'));
 });
 
 app.get('/cat-spin.gif', (req, res) => {
+    res.setHeader('Content-Type', 'image/gif');
+    res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(path.join(__dirname, 'cat-spin.gif'));
 });
 
 app.get('/spin.mp3', (req, res) => {
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(path.join(__dirname, 'spin.mp3'));
 });
 
