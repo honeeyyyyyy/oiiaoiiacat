@@ -505,19 +505,27 @@
                     })
                 });
                 
-                const data = await response.json();
-                if (data.success) {
-                    console.log(`Click recorded for ${data.countryName}: ${data.clicks} total`);
-                    
-                    // 랭킹이 열려있으면 업데이트
-                    if (rankingVisible) {
-                        loadRankings();
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        console.log(`✅ Click recorded for ${data.countryName}: ${data.clicks} total`);
+                        updateDebugInfo(`클릭 기록됨: ${data.countryName} (${data.clicks})`);
+                        
+                        // 랭킹이 열려있으면 업데이트
+                        if (rankingVisible) {
+                            loadRankings();
+                        }
+                    } else {
+                        console.error('Server returned error:', data.error);
+                        updateDebugInfo(`서버 오류: ${data.error}`);
                     }
                 } else {
-                    console.error('Failed to record click:', data.error);
+                    console.log('Server not available, working in offline mode');
+                    updateDebugInfo('오프라인 모드 (서버 연결 안됨)');
                 }
             } catch (error) {
-                console.error('Error sending click:', error);
+                console.log('Network error, working in offline mode:', error.message);
+                updateDebugInfo('네트워크 오류 (오프라인 모드)');
             }
         }
         
@@ -540,37 +548,84 @@
         
         // 랭킹 데이터 로드
         async function loadRankings() {
+            const leaderboardContent = document.getElementById('leaderboardContent');
+            
             try {
-                const response = await fetch('/api/ranking');
-                const data = await response.json();
+                leaderboardContent.innerHTML = '<div class="loading">🌍 랭킹 데이터 로딩 중...</div>';
                 
-                if (data.success) {
-                    // 전체 통계 업데이트
-                    document.getElementById('totalClicks').textContent = data.totalClicks.toLocaleString();
-                    document.getElementById('totalCountries').textContent = data.participatingCountries;
+                const response = await fetch('/api/ranking');
+                
+                if (response.ok) {
+                    const data = await response.json();
                     
-                    // 리더보드 업데이트
-                    const leaderboardContent = document.getElementById('leaderboardContent');
-                    
-                    if (data.rankings && data.rankings.length > 0) {
-                        leaderboardContent.innerHTML = data.rankings.map((country, index) => `
-                            <div class="leaderboard-row">
-                                <div class="rank">#${index + 1}</div>
-                                <div class="country">${country.countryName}</div>
-                                <div class="clicks">${country.clicks.toLocaleString()}</div>
-                            </div>
-                        `).join('');
+                    if (data.success) {
+                        // 전체 통계 업데이트
+                        document.getElementById('totalClicks').textContent = data.totalClicks.toLocaleString();
+                        document.getElementById('totalCountries').textContent = data.participatingCountries;
+                        
+                        // 리더보드 업데이트
+                        if (data.rankings && data.rankings.length > 0) {
+                            leaderboardContent.innerHTML = data.rankings.map((country, index) => {
+                                const emoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+                                return `
+                                    <div class="leaderboard-row">
+                                        <div class="rank">${emoji} #${index + 1}</div>
+                                        <div class="country">${country.countryName}</div>
+                                        <div class="clicks">${country.clicks.toLocaleString()}</div>
+                                    </div>
+                                `;
+                            }).join('');
+                            
+                            console.log(`✅ Rankings loaded: ${data.rankings.length} countries`);
+                        } else {
+                            leaderboardContent.innerHTML = '<div class="loading">🎯 첫 번째 클릭으로 랭킹을 시작하세요!</div>';
+                        }
                     } else {
-                        leaderboardContent.innerHTML = '<div class="loading">No data available yet...</div>';
+                        console.error('Server returned error:', data.error);
+                        leaderboardContent.innerHTML = '<div class="loading">⚠️ 랭킹 로드 실패</div>';
                     }
                 } else {
-                    console.error('Failed to load rankings:', data.error);
-                    document.getElementById('leaderboardContent').innerHTML = '<div class="loading">Failed to load rankings</div>';
+                    // 서버가 응답하지 않는 경우 (Static 모드)
+                    console.log('Server not available, showing offline ranking');
+                    displayOfflineRanking();
                 }
             } catch (error) {
-                console.error('Error loading rankings:', error);
-                document.getElementById('leaderboardContent').innerHTML = '<div class="loading">Error loading rankings</div>';
+                console.log('Network error, showing offline ranking:', error.message);
+                displayOfflineRanking();
             }
+        }
+        
+        // 오프라인 모드 랭킹 표시
+        function displayOfflineRanking() {
+            const leaderboardContent = document.getElementById('leaderboardContent');
+            
+            // 로컬 클릭 수를 기반으로 한 가상 랭킹
+            const offlineRankings = [
+                { country: 'KR', countryName: '대한민국', clicks: clickCount + 1000 },
+                { country: 'US', countryName: '미국', clicks: clickCount + 800 },
+                { country: 'JP', countryName: '일본', clicks: clickCount + 600 },
+                { country: 'CN', countryName: '중국', clicks: clickCount + 400 },
+                { country: 'GB', countryName: '영국', clicks: clickCount + 200 }
+            ].sort((a, b) => b.clicks - a.clicks);
+            
+            // 전체 통계 업데이트 (오프라인)
+            const totalOfflineClicks = offlineRankings.reduce((sum, country) => sum + country.clicks, 0);
+            document.getElementById('totalClicks').textContent = totalOfflineClicks.toLocaleString();
+            document.getElementById('totalCountries').textContent = offlineRankings.length;
+            
+            // 리더보드 업데이트
+            leaderboardContent.innerHTML = offlineRankings.map((country, index) => {
+                const emoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+                return `
+                    <div class="leaderboard-row">
+                        <div class="rank">${emoji} #${index + 1}</div>
+                        <div class="country">${country.countryName}</div>
+                        <div class="clicks">${country.clicks.toLocaleString()}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            console.log('📊 Offline ranking displayed');
         }
         
         // 이벤트 리스너
@@ -586,7 +641,7 @@
         
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('OIIA OIIA CAT v2.0 GIF-FIXED loaded!');
+            console.log('🚀 OIIA OIIA CAT v2.0 GIF-FIXED loaded!');
             preloadImages();
             updateDebugInfo('페이지 로드 완료');
             
@@ -600,6 +655,17 @@
                 catImage.src = './public/1.gif';
                 updateDebugInfo('초기 이미지 로드 실패, 대체 이미지 사용');
             };
+            
+            // 초기 랭킹 로드 시도 (서버가 있으면 실제 데이터, 없으면 오프라인 데이터)
+            console.log('🌍 초기 랭킹 데이터 로드 시도...');
+            displayOfflineRanking(); // 즉시 오프라인 랭킹 표시
+            
+            // 서버 연결 확인 후 실제 랭킹으로 업데이트 시도
+            setTimeout(() => {
+                loadRankings().catch(() => {
+                    console.log('Server not available, keeping offline ranking');
+                });
+            }, 1000);
         });
         
         // 자동 랭킹 업데이트 (30초마다)

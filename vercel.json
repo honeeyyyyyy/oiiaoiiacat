@@ -1,10 +1,14 @@
 {
     "version": 2,
-    "name": "oiiaoiiacat-final-v9",
+    "name": "oiiaoiiacat-final-v10",
     "builds": [
         {
             "src": "server.js",
             "use": "@vercel/node"
+        },
+        {
+            "src": "public/**",
+            "use": "@vercel/static"
         }
     ],
     "routes": [
@@ -13,11 +17,32 @@
             "dest": "/server.js"
         },
         {
+            "src": "/test-gif.html",
+            "dest": "/test-gif.html"
+        },
+        {
+            "src": "/terms.html",
+            "dest": "/terms.html"
+        },
+        {
+            "src": "/privacy.html",
+            "dest": "/privacy.html"
+        },
+        {
+            "src": "/public/(.*)",
+            "dest": "/public/$1"
+        },
+        {
             "src": "/(.*)",
             "dest": "/server.js"
         }
     ],
     "env": {
         "NODE_ENV": "production"
+    },
+    "functions": {
+        "server.js": {
+            "maxDuration": 30
+        }
     }
 } 
