@@ -18,6 +18,6 @@
         }
     ],
     "env": {
-        "MONGODB_URI": "mongodb+srv://honeeyyyy:qwer1234@cluster0.1ff5kkx.mongodb.net/"
+        "NODE_ENV": "production"
     }
 } 

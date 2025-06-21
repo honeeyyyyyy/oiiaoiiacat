@@ -1,272 +1,254 @@
 const express = require('express');
-const path = require('path');
 const cors = require('cors');
+const axios = require('axios');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 간단한 메모리 저장소
-let clickData = [];
-let countryStats = {};
-
-// 국가 이름 매핑 (확장됨)
-const countryNames = {
-    'KR': '🇰🇷 South Korea',
-    'US': '🇺🇸 United States', 
-    'JP': '🇯🇵 Japan',
-    'CN': '🇨🇳 China',
-    'GB': '🇬🇧 United Kingdom',
-    'DE': '🇩🇪 Germany',
-    'FR': '🇫🇷 France',
-    'CA': '🇨🇦 Canada',
-    'AU': '🇦🇺 Australia',
-    'BR': '🇧🇷 Brazil',
-    'IN': '🇮🇳 India',
-    'RU': '🇷🇺 Russia',
-    'IT': '🇮🇹 Italy',
-    'ES': '🇪🇸 Spain',
-    'MX': '🇲🇽 Mexico',
-    'TH': '🇹🇭 Thailand',
-    'VN': '🇻🇳 Vietnam',
-    'ID': '🇮🇩 Indonesia',
-    'MY': '🇲🇾 Malaysia',
-    'SG': '🇸🇬 Singapore',
-    'PH': '🇵🇭 Philippines',
-    'TW': '🇹🇼 Taiwan',
-    'HK': '🇭🇰 Hong Kong',
-    'NL': '🇳🇱 Netherlands',
-    'SE': '🇸🇪 Sweden',
-    'NO': '🇳🇴 Norway',
-    'DK': '🇩🇰 Denmark',
-    'FI': '🇫🇮 Finland',
-    'CH': '🇨🇭 Switzerland',
-    'AT': '🇦🇹 Austria',
-    'BE': '🇧🇪 Belgium',
-    'PT': '🇵🇹 Portugal',
-    'PL': '🇵🇱 Poland',
-    'CZ': '🇨🇿 Czech Republic',
-    'TR': '🇹🇷 Turkey',
-    'IL': '🇮🇱 Israel',
-    'SA': '🇸🇦 Saudi Arabia',
-    'AE': '🇦🇪 UAE',
-    'EG': '🇪🇬 Egypt',
-    'ZA': '🇿🇦 South Africa',
-    'NG': '🇳🇬 Nigeria',
-    'AR': '🇦🇷 Argentina',
-    'CL': '🇨🇱 Chile',
-    'CO': '🇨🇴 Colombia',
-    'PE': '🇵🇪 Peru',
-    'NZ': '🇳🇿 New Zealand',
-    'Local': '🏠 Local',
-    'Unknown': '❓ Unknown'
-};
-
-// 미들웨어
+// 미들웨어 설정
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('.'));
 
-// 캐시 방지
-app.use((req, res, next) => {
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    next();
-});
+// 국가별 클릭 데이터 저장소 (메모리 기반)
+let countryClicks = {};
+let totalClicks = 0;
 
-// 실제 IP 지역 감지 API 사용
-function getCountryFromIP(ip) {
-    try {
-        // 로컬 IP 처리
-        if (!ip || ip === '127.0.0.1' || ip.includes('localhost') || ip.includes('192.168') || ip.includes('10.0') || ip === '::1' || ip === '::ffff:127.0.0.1') {
-            return 'Local';
-        }
+// 국가 코드를 한국어 이름으로 변환하는 매핑
+const countryNames = {
+    'KR': '대한민국',
+    'US': '미국',
+    'JP': '일본',
+    'CN': '중국',
+    'GB': '영국',
+    'DE': '독일',
+    'FR': '프랑스',
+    'CA': '캐나다',
+    'AU': '호주',
+    'BR': '브라질',
+    'IN': '인도',
+    'RU': '러시아',
+    'IT': '이탈리아',
+    'ES': '스페인',
+    'NL': '네덜란드',
+    'SE': '스웨덴',
+    'NO': '노르웨이',
+    'DK': '덴마크',
+    'FI': '핀란드',
+    'PL': '폴란드',
+    'TR': '터키',
+    'TH': '태국',
+    'VN': '베트남',
+    'SG': '싱가포르',
+    'MY': '말레이시아',
+    'ID': '인도네시아',
+    'PH': '필리핀',
+    'TW': '대만',
+    'HK': '홍콩',
+    'MX': '멕시코',
+    'AR': '아르헨티나',
+    'CL': '칠레',
+    'CO': '콜롬비아',
+    'PE': '페루',
+    'ZA': '남아프리카공화국',
+    'EG': '이집트',
+    'IL': '이스라엘',
+    'AE': '아랍에미리트',
+    'SA': '사우디아라비아',
+    'IR': '이란',
+    'PK': '파키스탄',
+    'BD': '방글라데시',
+    'LK': '스리랑카',
+    'NP': '네팔',
+    'MM': '미얀마',
+    'KH': '캄보디아',
+    'LA': '라오스',
+    'BN': '브루나이',
+    'MN': '몽골',
+    'KZ': '카자흐스탄',
+    'UZ': '우즈베키스탄',
+    'KG': '키르기스스탄',
+    'TJ': '타지키스탄',
+    'TM': '투르크메니스탄',
+    'AF': '아프가니스탄',
+    'IQ': '이라크',
+    'SY': '시리아',
+    'JO': '요르단',
+    'LB': '레바논',
+    'YE': '예멘',
+    'OM': '오만',
+    'QA': '카타르',
+    'KW': '쿠웨이트',
+    'BH': '바레인',
+    'GE': '조지아',
+    'AM': '아르메니아',
+    'AZ': '아제르바이잔',
+    'BY': '벨라루스',
+    'UA': '우크라이나',
+    'MD': '몰도바',
+    'RO': '루마니아',
+    'BG': '불가리아',
+    'GR': '그리스',
+    'CY': '키프로스',
+    'MT': '몰타',
+    'AL': '알바니아',
+    'MK': '북마케도니아',
+    'ME': '몬테네그로',
+    'RS': '세르비아',
+    'BA': '보스니아 헤르체고비나',
+    'HR': '크로아티아',
+    'SI': '슬로베니아',
+    'SK': '슬로바키아',
+    'CZ': '체코',
+    'HU': '헝가리',
+    'AT': '오스트리아',
+    'CH': '스위스',
+    'LI': '리히텐슈타인',
+    'LU': '룩셈부르크',
+    'BE': '벨기에',
+    'PT': '포르투갈',
+    'IE': '아일랜드',
+    'IS': '아이슬란드',
+    'EE': '에스토니아',
+    'LV': '라트비아',
+    'LT': '리투아니아'
+};
 
-        console.log(`IP 지역 감지 시도: ${ip}`);
-
-        // Vercel 서버리스 환경에서는 외부 API 호출 제한으로 인해 간단한 매핑 사용
-
-        // 모든 API 실패 시 간단한 매핑 사용
-        console.log('모든 API 실패, 간단 매핑 사용');
-        const num = parseInt(ip.split('.')[0]) || 0;
-        if (num <= 60) return 'KR';
-        if (num <= 120) return 'US';
-        if (num <= 140) return 'JP';
-        if (num <= 160) return 'CN';
-        if (num <= 180) return 'GB';
-        if (num <= 200) return 'DE';
-        if (num <= 220) return 'FR';
-        return 'CA';
-        
-    } catch (error) {
-        console.error('IP 국가 조회 실패:', error);
-        return 'Unknown';
+// IP에서 국가 코드를 가져오는 함수 (여러 API 사용으로 안정성 확보)
+async function getCountryFromIP(ip) {
+    // 로컬 테스트를 위한 기본값
+    if (ip === '127.0.0.1' || ip === '::1' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
+        return 'KR'; // 로컬 테스트시 한국으로 설정
     }
-}
 
-// 초기 테스트 데이터 강화
-function initData() {
-    console.log('초기 데이터 생성 시작...');
-    const countries = ['KR', 'US', 'JP', 'CN', 'GB', 'DE', 'FR', 'CA'];
-    
-    countries.forEach((country, index) => {
-        const clicks = Math.floor(Math.random() * 100) + 50; // 50-150 클릭
-        
-        countryStats[country] = {
-            clicks: clicks,
-            name: countryNames[country],
-            lastClick: new Date()
-        };
-        
-        // 클릭 데이터 생성
-        for (let i = 0; i < clicks; i++) {
-            clickData.push({
-                country: country,
-                countryName: countryNames[country],
-                timestamp: new Date(Date.now() - Math.random() * 86400000), // 24시간 내 랜덤
-                version: '11.0.popcat-style'
-            });
+    const apis = [
+        `http://ip-api.com/json/${ip}?fields=countryCode`,
+        `https://ipapi.co/${ip}/country_code/`,
+        `https://api.country.is/${ip}`
+    ];
+
+    for (const apiUrl of apis) {
+        try {
+            console.log(`Trying API: ${apiUrl}`);
+            const response = await axios.get(apiUrl, { timeout: 5000 });
+            
+            let countryCode = null;
+            
+            if (apiUrl.includes('ip-api.com')) {
+                countryCode = response.data.countryCode;
+            } else if (apiUrl.includes('ipapi.co')) {
+                countryCode = response.data;
+            } else if (apiUrl.includes('country.is')) {
+                countryCode = response.data.country;
+            }
+            
+            if (countryCode && countryCode.length === 2) {
+                console.log(`Country detected: ${countryCode} for IP: ${ip}`);
+                return countryCode.toUpperCase();
+            }
+        } catch (error) {
+            console.log(`API ${apiUrl} failed:`, error.message);
+            continue;
         }
-    });
+    }
     
-    console.log('초기 데이터 생성 완료:', {
-        totalClicks: clickData.length,
-        totalCountries: Object.keys(countryStats).length,
-        countries: Object.keys(countryStats)
-    });
+    // 모든 API가 실패하면 기본값 반환
+    console.log(`All APIs failed for IP: ${ip}, using default KR`);
+    return 'KR';
 }
 
-// 서버 시작 시 데이터 초기화
-initData();
-
-// API 엔드포인트들
-app.get('/api/health', (req, res) => {
-    res.json({ 
-        status: 'ok',
-        version: '11.0.popcat-style',
-        totalClicks: clickData.length,
-        totalCountries: Object.keys(countryStats).length
-    });
-});
-
-app.post('/api/click', (req, res) => {
+// 클릭 처리 API
+app.post('/api/click', async (req, res) => {
     try {
-        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || '127.0.0.1';
-        const country = getCountryFromIP(ip.split(',')[0]);
-        const countryName = countryNames[country];
+        // 실제 클라이언트 IP 가져오기
+        const clientIP = req.headers['x-forwarded-for'] || 
+                        req.headers['x-real-ip'] || 
+                        req.connection.remoteAddress || 
+                        req.socket.remoteAddress ||
+                        (req.connection.socket ? req.connection.socket.remoteAddress : null) ||
+                        req.ip;
         
-        // 데이터 저장
-        clickData.push({
-            country: country,
-            countryName: countryName,
-            timestamp: new Date()
-        });
+        console.log(`Click from IP: ${clientIP}`);
         
-        if (!countryStats[country]) {
-            countryStats[country] = { clicks: 0, name: countryName, lastClick: new Date() };
+        // IP에서 국가 코드 가져오기
+        const countryCode = await getCountryFromIP(clientIP);
+        
+        // 클릭 수 증가
+        if (!countryClicks[countryCode]) {
+            countryClicks[countryCode] = 0;
         }
-        countryStats[country].clicks++;
-        countryStats[country].lastClick = new Date();
+        countryClicks[countryCode]++;
+        totalClicks++;
+        
+        console.log(`Click recorded: ${countryCode} (${countryClicks[countryCode]} total)`);
         
         res.json({
             success: true,
-            country: country,
-            countryName: countryName,
-            totalClicks: clickData.length
+            country: countryCode,
+            countryName: countryNames[countryCode] || countryCode,
+            clicks: countryClicks[countryCode],
+            totalClicks: totalClicks
         });
     } catch (error) {
-        res.json({
+        console.error('Click processing error:', error);
+        res.status(500).json({
             success: false,
-            country: 'Unknown',
-            countryName: countryNames['Unknown']
+            error: 'Failed to process click'
         });
     }
 });
 
-app.get('/api/rankings', (req, res) => {
+// 랭킹 조회 API
+app.get('/api/ranking', (req, res) => {
     try {
-        console.log('랭킹 API 호출됨');
-        console.log('현재 countryStats:', countryStats);
-        console.log('총 클릭 데이터:', clickData.length);
-        
-        const rankings = Object.entries(countryStats)
-            .map(([code, stats]) => ({
-                _id: code,
-                countryName: stats.name,
-                clicks: stats.clicks
+        // 국가별 클릭 수를 배열로 변환하고 정렬
+        const rankings = Object.entries(countryClicks)
+            .map(([countryCode, clicks]) => ({
+                country: countryCode,
+                countryName: countryNames[countryCode] || countryCode,
+                clicks: clicks
             }))
             .sort((a, b) => b.clicks - a.clicks)
-            .slice(0, 10);
-
-        const result = {
+            .slice(0, 10); // 상위 10개국만
+        
+        const participatingCountries = Object.keys(countryClicks).length;
+        
+        res.json({
             success: true,
-            rankings: rankings,
-            totalClicks: clickData.length,
-            totalCountries: Object.keys(countryStats).length,
-            recentClicks: clickData.filter(c => new Date() - new Date(c.timestamp) < 86400000).length,
-            debug: {
-                hasData: clickData.length > 0,
-                hasStats: Object.keys(countryStats).length > 0,
-                timestamp: new Date().toISOString()
-            }
-        };
-        
-        console.log('랭킹 응답:', result);
-        res.json(result);
+            totalClicks: totalClicks,
+            participatingCountries: participatingCountries,
+            rankings: rankings
+        });
     } catch (error) {
-        console.error('랭킹 API 에러:', error);
-        res.json({
+        console.error('Ranking fetch error:', error);
+        res.status(500).json({
             success: false,
-            rankings: [],
-            totalClicks: 0,
-            totalCountries: 0,
-            recentClicks: 0,
-            error: error.message
+            error: 'Failed to fetch rankings'
         });
     }
 });
 
-app.get('/api/stats', (req, res) => {
-    try {
-        const topCountry = Object.entries(countryStats)
-            .sort(([,a], [,b]) => b.clicks - a.clicks)[0];
-        
-        res.json({
-            total: clickData.length,
-            countries: Object.keys(countryStats).length,
-            topCountry: topCountry ? {
-                code: topCountry[0],
-                name: topCountry[1].name,
-                clicks: topCountry[1].clicks
-            } : null
-        });
-    } catch (error) {
-        res.json({ error: '통계 조회 실패' });
-    }
-});
-
-// 정적 파일 서빙
+// 메인 페이지 제공
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// public 폴더의 파일들
-app.get('/public/:file', (req, res) => {
-    const fileName = req.params.file;
-    res.sendFile(path.join(__dirname, 'public', fileName));
+// 서버 시작
+app.listen(PORT, () => {
+    console.log(`🚀 OIIA OIIA CAT Server running on port ${PORT}`);
+    console.log(`🌍 Country ranking system active`);
+    console.log(`📊 Total clicks: ${totalClicks}`);
+    console.log(`🏆 Countries participating: ${Object.keys(countryClicks).length}`);
 });
 
-// 404 처리
-app.use((req, res) => {
-    res.status(404).send('페이지를 찾을 수 없습니다.');
+// 프로세스 종료 시 정리
+process.on('SIGTERM', () => {
+    console.log('Server shutting down...');
+    process.exit(0);
 });
 
-// Vercel 서버리스 함수로 내보내기
-module.exports = app;
-
-// 로컬 개발용
-if (require.main === module) {
-    app.listen(PORT, () => {
-        console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
-    });
-} 
+process.on('SIGINT', () => {
+    console.log('Server shutting down...');
+    process.exit(0);
+}); 
