@@ -385,6 +385,183 @@
     </audio>
 
     <script>
+        // 다국어 번역 데이터
+        const translations = {
+            ko: {
+                title: 'OIIA OIIA CAT',
+                worldRanking: '🌍 전세계 랭킹',
+                showRanking: '🌍 전세계 랭킹 보기 ↑',
+                hideRanking: '🌍 전세계 랭킹 닫기 ↓',
+                totalClicks: '전세계 총 클릭 수',
+                totalCountries: '참여 국가 수',
+                countries: '개국',
+                loadingLeaderboard: 'Loading leaderboard...',
+                noDataAvailable: 'No data available yet...',
+                terms: '이용약관',
+                privacy: '개인정보처리방침'
+            },
+            en: {
+                title: 'OIIA OIIA CAT',
+                worldRanking: '🌍 World Ranking',
+                showRanking: '🌍 Show World Ranking ↑',
+                hideRanking: '🌍 Hide World Ranking ↓',
+                totalClicks: 'Total World Clicks',
+                totalCountries: 'Participating Countries',
+                countries: 'countries',
+                loadingLeaderboard: 'Loading leaderboard...',
+                noDataAvailable: 'No data available yet...',
+                terms: 'Terms of Service',
+                privacy: 'Privacy Policy'
+            },
+            ja: {
+                title: 'OIIA OIIA CAT',
+                worldRanking: '🌍 世界ランキング',
+                showRanking: '🌍 世界ランキングを表示 ↑',
+                hideRanking: '🌍 世界ランキングを閉じる ↓',
+                totalClicks: '世界総クリック数',
+                totalCountries: '参加国数',
+                countries: 'カ国',
+                loadingLeaderboard: 'リーダーボードを読み込み中...',
+                noDataAvailable: 'データがまだありません...',
+                terms: '利用規約',
+                privacy: 'プライバシーポリシー'
+            },
+            zh: {
+                title: 'OIIA OIIA CAT',
+                worldRanking: '🌍 世界排行榜',
+                showRanking: '🌍 显示世界排行榜 ↑',
+                hideRanking: '🌍 隐藏世界排行榜 ↓',
+                totalClicks: '全球总点击数',
+                totalCountries: '参与国家数',
+                countries: '个国家',
+                loadingLeaderboard: '加载排行榜中...',
+                noDataAvailable: '暂无数据...',
+                terms: '服务条款',
+                privacy: '隐私政策'
+            },
+            de: {
+                title: 'OIIA OIIA CAT',
+                worldRanking: '🌍 Weltrangliste',
+                showRanking: '🌍 Weltrangliste anzeigen ↑',
+                hideRanking: '🌍 Weltrangliste ausblenden ↓',
+                totalClicks: 'Gesamte Weltklicks',
+                totalCountries: 'Teilnehmende Länder',
+                countries: 'Länder',
+                loadingLeaderboard: 'Rangliste wird geladen...',
+                noDataAvailable: 'Noch keine Daten verfügbar...',
+                terms: 'Nutzungsbedingungen',
+                privacy: 'Datenschutz'
+            },
+            fr: {
+                title: 'OIIA OIIA CAT',
+                worldRanking: '🌍 Classement Mondial',
+                showRanking: '🌍 Afficher le Classement Mondial ↑',
+                hideRanking: '🌍 Masquer le Classement Mondial ↓',
+                totalClicks: 'Clics Mondiaux Totaux',
+                totalCountries: 'Pays Participants',
+                countries: 'pays',
+                loadingLeaderboard: 'Chargement du classement...',
+                noDataAvailable: 'Aucune donnée disponible...',
+                terms: 'Conditions d\'utilisation',
+                privacy: 'Politique de Confidentialité'
+            },
+            es: {
+                title: 'OIIA OIIA CAT',
+                worldRanking: '🌍 Ranking Mundial',
+                showRanking: '🌍 Mostrar Ranking Mundial ↑',
+                hideRanking: '🌍 Ocultar Ranking Mundial ↓',
+                totalClicks: 'Clics Mundiales Totales',
+                totalCountries: 'Países Participantes',
+                countries: 'países',
+                loadingLeaderboard: 'Cargando clasificación...',
+                noDataAvailable: 'No hay datos disponibles...',
+                terms: 'Términos de Servicio',
+                privacy: 'Política de Privacidad'
+            },
+            ru: {
+                title: 'OIIA OIIA CAT',
+                worldRanking: '🌍 Мировой Рейтинг',
+                showRanking: '🌍 Показать Мировой Рейтинг ↑',
+                hideRanking: '🌍 Скрыть Мировой Рейтинг ↓',
+                totalClicks: 'Общее Количество Кликов',
+                totalCountries: 'Участвующие Страны',
+                countries: 'стран',
+                loadingLeaderboard: 'Загрузка рейтинга...',
+                noDataAvailable: 'Данные пока недоступны...',
+                terms: 'Условия Использования',
+                privacy: 'Политика Конфиденциальности'
+            },
+            it: {
+                title: 'OIIA OIIA CAT',
+                worldRanking: '🌍 Classifica Mondiale',
+                showRanking: '🌍 Mostra Classifica Mondiale ↑',
+                hideRanking: '🌍 Nascondi Classifica Mondiale ↓',
+                totalClicks: 'Click Mondiali Totali',
+                totalCountries: 'Paesi Partecipanti',
+                countries: 'paesi',
+                loadingLeaderboard: 'Caricamento classifica...',
+                noDataAvailable: 'Nessun dato disponibile...',
+                terms: 'Termini di Servizio',
+                privacy: 'Informativa sulla Privacy'
+            },
+            pt: {
+                title: 'OIIA OIIA CAT',
+                worldRanking: '🌍 Ranking Mundial',
+                showRanking: '🌍 Mostrar Ranking Mundial ↑',
+                hideRanking: '🌍 Ocultar Ranking Mundial ↓',
+                totalClicks: 'Total de Cliques Mundiais',
+                totalCountries: 'Países Participantes',
+                countries: 'países',
+                loadingLeaderboard: 'Carregando classificação...',
+                noDataAvailable: 'Nenhum dado disponível...',
+                terms: 'Termos de Serviço',
+                privacy: 'Política de Privacidade'
+            }
+        };
+
+        let currentLanguage = 'ko'; // 기본 언어
+
+        // 언어 설정 함수
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            document.documentElement.lang = lang;
+            updateUI();
+        }
+
+        // UI 업데이트 함수
+        function updateUI() {
+            const t = translations[currentLanguage] || translations['en'];
+            
+            // 타이틀 업데이트
+            document.title = t.title;
+            
+            // 랭킹 토글 버튼 업데이트
+            const rankings = document.getElementById('rankingsList');
+            const toggle = document.querySelector('.ranking-toggle');
+            if (rankings && toggle) {
+                if (rankings.classList.contains('collapsed')) {
+                    toggle.innerHTML = t.showRanking;
+                } else {
+                    toggle.innerHTML = t.hideRanking;
+                }
+            }
+            
+            // 랭킹 헤더 업데이트
+            const rankingHeader = document.querySelector('.ranking-header h3');
+            if (rankingHeader) {
+                rankingHeader.textContent = t.worldRanking;
+            }
+            
+            // Footer 업데이트
+            const footer = document.querySelector('.footer');
+            if (footer) {
+                footer.innerHTML = `
+                    <a href="terms.html">${t.terms}</a> | 
+                    <a href="privacy.html">${t.privacy}</a>
+                `;
+            }
+        }
+
         const catStatic = document.getElementById('cat-static');
         const catSpin = document.getElementById('cat-spin');
         const scoreElement = document.getElementById('score');
@@ -409,6 +586,11 @@
                     body: JSON.stringify({ timestamp: new Date().toISOString() })
                 });
                 if (response.ok) { 
+                    const data = await response.json();
+                    // 서버에서 받은 언어 정보로 언어 설정
+                    if (data.language && data.language !== currentLanguage) {
+                        setLanguage(data.language);
+                    }
                     updateRankings(); 
                 }
             } catch (error) {
@@ -419,18 +601,21 @@
         function toggleRankings() {
             const rankings = document.getElementById('rankingsList');
             const toggle = document.querySelector('.ranking-toggle');
+            const t = translations[currentLanguage] || translations['en'];
             
             if (rankings.classList.contains('collapsed')) {
                 rankings.classList.remove('collapsed');
-                toggle.innerHTML = '🌍 전세계 랭킹 닫기 ↓';
+                toggle.innerHTML = t.hideRanking;
                 updateRankings();
             } else {
                 rankings.classList.add('collapsed');
-                toggle.innerHTML = '🌍 전세계 랭킹 보기 ↑';
+                toggle.innerHTML = t.showRanking;
             }
         }
 
         async function updateRankings() {
+            const t = translations[currentLanguage] || translations['en'];
+            
             try {
                 const response = await fetch('/api/ranking');
                 const data = await response.json();
@@ -468,8 +653,14 @@
                         `;
                         }).join('');
                     } else {
-                        leaderboardContent.innerHTML = '<div style="text-align: center; color: #888; padding: 20px; font-style: italic;">No data available yet...</div>';
+                        leaderboardContent.innerHTML = `<div style="text-align: center; color: #888; padding: 20px; font-style: italic;">${t.noDataAvailable}</div>`;
                     }
+                    
+                    // 랭킹 섹션의 텍스트 업데이트
+                    const totalClicksLabel = document.querySelector('.total-item:first-child span:first-child');
+                    const totalCountriesLabel = document.querySelector('.total-item:last-child span:first-child');
+                    if (totalClicksLabel) totalClicksLabel.textContent = t.totalClicks;
+                    if (totalCountriesLabel) totalCountriesLabel.textContent = t.totalCountries;
                 }
             } catch (error) {
                 console.log('랭킹 로드 실패, 테스트 데이터 표시');
@@ -520,6 +711,12 @@
                         <span class="ranking-spins">88</span>
                     </div>
                 `;
+                
+                // 오프라인 모드에서도 라벨 업데이트
+                const totalClicksLabel = document.querySelector('.total-item:first-child span:first-child');
+                const totalCountriesLabel = document.querySelector('.total-item:last-child span:first-child');
+                if (totalClicksLabel) totalClicksLabel.textContent = t.totalClicks;
+                if (totalCountriesLabel) totalCountriesLabel.textContent = t.totalCountries;
             }
         }
 
@@ -562,6 +759,23 @@
             
             catStatic.classList.add('active');
             catSpin.classList.remove('active');
+            
+            // 초기 언어 설정 및 UI 업데이트
+            updateUI();
+            
+            // 첫 클릭 시 언어 감지를 위한 더미 요청
+            fetch('/api/click', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ timestamp: new Date().toISOString(), isInitial: true })
+            }).then(response => response.json())
+            .then(data => {
+                if (data.language && data.language !== currentLanguage) {
+                    setLanguage(data.language);
+                }
+            }).catch(() => {
+                console.log('언어 감지 실패, 기본 언어 유지');
+            });
         });
 
         // 이벤트 리스너
