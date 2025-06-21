@@ -53,24 +53,39 @@ function getCountryFromIP(ip) {
     return 'CA';
 }
 
-// 초기 테스트 데이터
+// 초기 테스트 데이터 강화
 function initData() {
-    const countries = ['KR', 'US', 'JP', 'CN', 'GB'];
-    countries.forEach(country => {
-        const clicks = Math.floor(Math.random() * 50) + 10;
+    console.log('초기 데이터 생성 시작...');
+    const countries = ['KR', 'US', 'JP', 'CN', 'GB', 'DE', 'FR', 'CA'];
+    
+    countries.forEach((country, index) => {
+        const clicks = Math.floor(Math.random() * 100) + 50; // 50-150 클릭
+        
         countryStats[country] = {
             clicks: clicks,
             name: countryNames[country],
             lastClick: new Date()
         };
-        clickData.push(...Array(clicks).fill().map(() => ({
-            country: country,
-            countryName: countryNames[country],
-            timestamp: new Date()
-        })));
+        
+        // 클릭 데이터 생성
+        for (let i = 0; i < clicks; i++) {
+            clickData.push({
+                country: country,
+                countryName: countryNames[country],
+                timestamp: new Date(Date.now() - Math.random() * 86400000), // 24시간 내 랜덤
+                version: '11.0.popcat-style'
+            });
+        }
+    });
+    
+    console.log('초기 데이터 생성 완료:', {
+        totalClicks: clickData.length,
+        totalCountries: Object.keys(countryStats).length,
+        countries: Object.keys(countryStats)
     });
 }
 
+// 서버 시작 시 데이터 초기화
 initData();
 
 // API 엔드포인트들
@@ -119,6 +134,10 @@ app.post('/api/click', (req, res) => {
 
 app.get('/api/rankings', (req, res) => {
     try {
+        console.log('랭킹 API 호출됨');
+        console.log('현재 countryStats:', countryStats);
+        console.log('총 클릭 데이터:', clickData.length);
+        
         const rankings = Object.entries(countryStats)
             .map(([code, stats]) => ({
                 _id: code,
@@ -128,20 +147,30 @@ app.get('/api/rankings', (req, res) => {
             .sort((a, b) => b.clicks - a.clicks)
             .slice(0, 10);
 
-        res.json({
+        const result = {
             success: true,
             rankings: rankings,
             totalClicks: clickData.length,
             totalCountries: Object.keys(countryStats).length,
-            recentClicks: clickData.filter(c => new Date() - new Date(c.timestamp) < 86400000).length
-        });
+            recentClicks: clickData.filter(c => new Date() - new Date(c.timestamp) < 86400000).length,
+            debug: {
+                hasData: clickData.length > 0,
+                hasStats: Object.keys(countryStats).length > 0,
+                timestamp: new Date().toISOString()
+            }
+        };
+        
+        console.log('랭킹 응답:', result);
+        res.json(result);
     } catch (error) {
+        console.error('랭킹 API 에러:', error);
         res.json({
             success: false,
             rankings: [],
             totalClicks: 0,
             totalCountries: 0,
-            recentClicks: 0
+            recentClicks: 0,
+            error: error.message
         });
     }
 });
