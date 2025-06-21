@@ -26,7 +26,7 @@ const countryNames = {
 // 미들웨어
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 캐시 방지
 app.use((req, res, next) => {
@@ -168,6 +168,17 @@ app.get('/api/stats', (req, res) => {
 // 정적 파일 서빙
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// public 폴더의 파일들
+app.get('/public/:file', (req, res) => {
+    const fileName = req.params.file;
+    res.sendFile(path.join(__dirname, 'public', fileName));
+});
+
+// 404 처리
+app.use((req, res) => {
+    res.status(404).send('페이지를 찾을 수 없습니다.');
 });
 
 // Vercel 서버리스 함수로 내보내기
