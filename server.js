@@ -75,7 +75,7 @@ app.use((req, res, next) => {
 });
 
 // 실제 IP 지역 감지 API 사용
-async function getCountryFromIP(ip) {
+function getCountryFromIP(ip) {
     try {
         // 로컬 IP 처리
         if (!ip || ip === '127.0.0.1' || ip.includes('localhost') || ip.includes('192.168') || ip.includes('10.0') || ip === '::1' || ip === '::ffff:127.0.0.1') {
@@ -84,59 +84,7 @@ async function getCountryFromIP(ip) {
 
         console.log(`IP 지역 감지 시도: ${ip}`);
 
-        // 첫 번째 API: ipapi.co (무료, 신뢰성 높음)
-        try {
-            const response = await fetch(`https://ipapi.co/${ip}/country_code/`, {
-                timeout: 5000,
-                headers: {
-                    'User-Agent': 'OIIA-OIIA-CAT/11.0'
-                }
-            });
-            
-            if (response.ok) {
-                const countryCode = await response.text();
-                if (countryCode && countryCode.length === 2 && countryCode !== 'undefined') {
-                    console.log(`ipapi.co 결과: ${countryCode}`);
-                    return countryCode.toUpperCase();
-                }
-            }
-        } catch (apiError) {
-            console.log('ipapi.co 실패:', apiError.message);
-        }
-
-        // 두 번째 API: ip-api.com (백업)
-        try {
-            const backupResponse = await fetch(`http://ip-api.com/json/${ip}?fields=countryCode`, {
-                timeout: 5000
-            });
-            
-            if (backupResponse.ok) {
-                const data = await backupResponse.json();
-                if (data.countryCode) {
-                    console.log(`ip-api.com 결과: ${data.countryCode}`);
-                    return data.countryCode.toUpperCase();
-                }
-            }
-        } catch (apiError) {
-            console.log('ip-api.com 실패:', apiError.message);
-        }
-
-        // 세 번째 API: ipinfo.io (백업)
-        try {
-            const ipinfoResponse = await fetch(`https://ipinfo.io/${ip}/country`, {
-                timeout: 5000
-            });
-            
-            if (ipinfoResponse.ok) {
-                const countryCode = await ipinfoResponse.text();
-                if (countryCode && countryCode.length === 2) {
-                    console.log(`ipinfo.io 결과: ${countryCode}`);
-                    return countryCode.toUpperCase();
-                }
-            }
-        } catch (apiError) {
-            console.log('ipinfo.io 실패:', apiError.message);
-        }
+        // Vercel 서버리스 환경에서는 외부 API 호출 제한으로 인해 간단한 매핑 사용
 
         // 모든 API 실패 시 간단한 매핑 사용
         console.log('모든 API 실패, 간단 매핑 사용');
@@ -201,10 +149,10 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-app.post('/api/click', async (req, res) => {
+app.post('/api/click', (req, res) => {
     try {
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || '127.0.0.1';
-        const country = await getCountryFromIP(ip.split(',')[0]);
+        const country = getCountryFromIP(ip.split(',')[0]);
         const countryName = countryNames[country];
         
         // 데이터 저장
