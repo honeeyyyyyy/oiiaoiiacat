@@ -192,97 +192,164 @@
             border-left: 4px solid #ff6b6b;
         }
 
-        /* 랭킹 패널 스타일 */
-        .ranking-panel {
+        /* POPCAT 스타일 랭킹 패널 */
+        .popcat-ranking-panel {
             position: fixed;
             bottom: 0;
-            right: 20px;
-            width: 350px;
-            background: rgba(255,255,255,0.95);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            max-width: 600px;
+            background: #1a1a2e;
             border-radius: 15px 15px 0 0;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 500;
-            backdrop-filter: blur(20px);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+            z-index: 1000;
+            transition: all 0.3s ease;
+            border: 2px solid #16213e;
         }
 
-        .ranking-panel.collapsed {
-            transform: translateY(calc(100% - 50px));
+        .popcat-ranking-panel.collapsed {
+            transform: translateX(-50%) translateY(calc(100% - 60px));
         }
 
         .ranking-header {
-            padding: 12px 18px;
-            background: linear-gradient(135deg, #4facfe, #00f2fe);
-            color: white;
-            border-radius: 15px 15px 0 0;
-            cursor: pointer;
-            font-weight: bold;
+            background: #16213e;
+            padding: 18px;
             text-align: center;
-            transition: all 0.3s ease;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            user-select: none;
+            font-size: 1.2rem;
+            border-radius: 13px 13px 0 0;
+            transition: background 0.3s ease;
+            letter-spacing: 1px;
         }
 
         .ranking-header:hover {
-            background: linear-gradient(135deg, #2196f3, #00bcd4);
+            background: #0f1419;
         }
 
         .ranking-content {
             padding: 20px;
-            max-height: 60vh;
+            max-height: 500px;
             overflow-y: auto;
+            background: #1a1a2e;
         }
 
-        .global-stats {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+        .popcat-stats-header {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 25px;
+            gap: 20px;
+        }
+
+        .world-clicks-stat, .countries-stat {
+            background: #16213e;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            flex: 1;
+            border: 1px solid #0f1419;
+        }
+
+        .big-number {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #4fc3f7;
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 0.9rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .popcat-leaderboard {
+            background: #16213e;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #0f1419;
+        }
+
+        .leaderboard-header {
+            display: flex;
+            background: #0f1419;
+            padding: 15px 20px;
+            font-weight: bold;
+            color: #888;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .rank-col {
+            width: 60px;
             text-align: center;
         }
 
-        .stat-item {
-            margin: 8px 0;
-            font-size: 1.1rem;
-            font-weight: bold;
+        .country-col {
+            flex: 1;
+            text-align: left;
+        }
+
+        .clicks-col {
+            width: 120px;
+            text-align: right;
         }
 
         .country-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
         }
 
         .country-item {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 10px 15px;
-            background: rgba(116, 75, 162, 0.1);
-            border-radius: 8px;
-            border-left: 4px solid #764ba2;
-            transition: all 0.3s ease;
+            padding: 15px 20px;
+            border-bottom: 1px solid #0f1419;
+            color: #fff;
+            transition: background 0.2s ease;
         }
 
         .country-item:hover {
-            background: rgba(116, 75, 162, 0.2);
-            transform: translateX(5px);
+            background: #0f1419;
+        }
+
+        .country-item:last-child {
+            border-bottom: none;
         }
 
         .country-rank {
+            width: 60px;
+            text-align: center;
             font-weight: bold;
-            color: #764ba2;
+            font-size: 1.1rem;
+            color: #4fc3f7;
         }
 
         .country-name {
             flex: 1;
-            text-align: left;
-            margin-left: 10px;
+            font-size: 1.1rem;
             font-weight: 500;
         }
 
         .country-clicks {
+            width: 120px;
+            text-align: right;
             font-weight: bold;
-            color: #667eea;
+            color: #4fc3f7;
+            font-family: 'Courier New', monospace;
+        }
+
+        .loading-message {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-style: italic;
         }
 
         /* 모바일 최적화 */
@@ -377,19 +444,31 @@
         </div>
     </div>
 
-    <!-- 랭킹 패널 -->
-    <div id="rankingPanel" class="ranking-panel collapsed">
+    <!-- POPCAT 스타일 전세계 랭킹 패널 -->
+    <div id="rankingPanel" class="popcat-ranking-panel collapsed">
         <div class="ranking-header" onclick="togglePanel('rankingPanel')">
-            🌍 전세계 랭킹 보기 ↑
+            🌍 WORLD RANKING ↑
         </div>
         <div class="ranking-content">
-            <div class="global-stats">
-                <div class="stat-item">🌍 전세계 총 클릭 수: <span id="totalClicks">로딩중...</span></div>
-                <div class="stat-item">🏴 참여 국가 수: <span id="totalCountries">로딩중...</span></div>
-                <div class="stat-item">🔥 실시간 통계: <span id="liveStats">로딩중...</span></div>
+            <div class="popcat-stats-header">
+                <div class="world-clicks-stat">
+                    <div class="big-number" id="totalClicks">0</div>
+                    <div class="stat-label">WORLD CLICKS</div>
+                </div>
+                <div class="countries-stat">
+                    <div class="big-number" id="totalCountries">0</div>
+                    <div class="stat-label">COUNTRIES</div>
+                </div>
             </div>
-            <div class="country-list" id="countryList">
-                <div style="text-align: center; color: #666;">랭킹을 불러오는 중...</div>
+            <div class="popcat-leaderboard">
+                <div class="leaderboard-header">
+                    <div class="rank-col">RANK</div>
+                    <div class="country-col">COUNTRY</div>
+                    <div class="clicks-col">CLICKS</div>
+                </div>
+                <div class="country-list" id="countryList">
+                    <div class="loading-message">Loading leaderboard...</div>
+                </div>
             </div>
         </div>
     </div>
@@ -469,14 +548,14 @@
                 if (panelId === 'infoPanel') {
                     header.innerHTML = '📖 게임 정보 숨기기 ↓';
                 } else {
-                    header.innerHTML = '🌍 전세계 랭킹 숨기기 ↓';
+                    header.innerHTML = '🌍 WORLD RANKING ↓';
                 }
             } else {
                 panel.classList.add('collapsed');
                 if (panelId === 'infoPanel') {
                     header.innerHTML = '📖 게임 정보 보기 ↑';
                 } else {
-                    header.innerHTML = '🌍 전세계 랭킹 보기 ↑';
+                    header.innerHTML = '🌍 WORLD RANKING ↑';
                 }
             }
         }
@@ -529,23 +608,18 @@
                 document.getElementById('totalClicks').textContent = data.totalClicks?.toLocaleString() || '0';
                 document.getElementById('totalCountries').textContent = data.totalCountries || '0';
                 
-                // 국가별 랭킹 업데이트 (새로운 API 응답 형식)
+                // POPCAT 스타일 랭킹 업데이트
                 const countryList = document.getElementById('countryList');
                 if (data.rankings && data.rankings.length > 0) {
                     countryList.innerHTML = data.rankings.map((country, index) => `
                         <div class="country-item">
-                            <span class="country-rank">${index + 1}위</span>
-                            <span class="country-name">${country.countryName || country._id || '알 수 없음'}</span>
-                            <span class="country-clicks">${country.clicks.toLocaleString()}회</span>
+                            <div class="country-rank">${index + 1}</div>
+                            <div class="country-name">${country.countryName || country._id || 'Unknown'}</div>
+                            <div class="country-clicks">${country.clicks.toLocaleString()}</div>
                         </div>
                     `).join('');
-                    
-                    // 최근 활동 표시 추가
-                    if (data.recentClicks !== undefined) {
-                        document.getElementById('totalClicks').textContent = `${data.totalClicks.toLocaleString()} (24시간 내: ${data.recentClicks.toLocaleString()})`;
-                    }
                 } else {
-                    countryList.innerHTML = '<div style="text-align: center; color: #666;">아직 랭킹 데이터가 없습니다.</div>';
+                    countryList.innerHTML = '<div class="loading-message">No ranking data available</div>';
                 }
             } catch (error) {
                 console.error('랭킹 로딩 실패:', error);
