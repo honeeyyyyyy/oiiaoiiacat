@@ -548,54 +548,36 @@
         
         // 랭킹 데이터 로드
         async function loadRankings() {
-            const leaderboardContent = document.getElementById('leaderboardContent');
-            
             try {
-                leaderboardContent.innerHTML = '<div class="loading">🌍 랭킹 데이터 로딩 중...</div>';
-                
                 const response = await fetch('/api/ranking');
+                const data = await response.json();
                 
-                if (response.ok) {
-                    const data = await response.json();
+                if (data.success) {
+                    // 전체 통계 업데이트
+                    document.getElementById('totalClicks').textContent = data.totalClicks.toLocaleString();
+                    document.getElementById('totalCountries').textContent = data.participatingCountries;
                     
-                    if (data.success) {
-                        // 전체 통계 업데이트
-                        document.getElementById('totalClicks').textContent = data.totalClicks.toLocaleString();
-                        document.getElementById('totalCountries').textContent = data.participatingCountries;
-                        
-                        // 리더보드 업데이트
-                        if (data.rankings && data.rankings.length > 0) {
-                            leaderboardContent.innerHTML = data.rankings.map((country, index) => {
-                                const emoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
-                                return `
-                                    <div class="leaderboard-row">
-                                        <div class="rank">${emoji} #${index + 1}</div>
-                                        <div class="country">${country.countryName}</div>
-                                        <div class="clicks">${country.clicks.toLocaleString()}</div>
-                                    </div>
-                                `;
-                            }).join('');
-                            
-                            console.log(`✅ Rankings loaded: ${data.rankings.length} countries`);
-                        } else {
-                            leaderboardContent.innerHTML = '<div class="loading">🎯 첫 번째 클릭으로 랭킹을 시작하세요!</div>';
-                        }
+                    // 리더보드 업데이트
+                    const leaderboardContent = document.getElementById('leaderboardContent');
+                    
+                    if (data.rankings && data.rankings.length > 0) {
+                        leaderboardContent.innerHTML = data.rankings.map((country, index) => `
+                            <div class="leaderboard-row">
+                                <div class="rank">#${index + 1}</div>
+                                <div class="country">${country.countryName}</div>
+                                <div class="clicks">${country.clicks.toLocaleString()}</div>
+                            </div>
+                        `).join('');
                     } else {
-                        console.error('Server returned error:', data.error);
-                        leaderboardContent.innerHTML = '<div class="loading">⚠️ 서버 오류로 랭킹을 불러올 수 없습니다</div>';
+                        leaderboardContent.innerHTML = '<div class="loading">No data available yet...</div>';
                     }
                 } else {
-                    // 서버가 응답하지 않는 경우
-                    console.log('Server not available');
-                    leaderboardContent.innerHTML = '<div class="loading">🔌 서버 연결 실패<br>나중에 다시 시도해주세요</div>';
-                    document.getElementById('totalClicks').textContent = '0';
-                    document.getElementById('totalCountries').textContent = '0';
+                    console.error('Failed to load rankings:', data.error);
+                    document.getElementById('leaderboardContent').innerHTML = '<div class="loading">Failed to load rankings</div>';
                 }
             } catch (error) {
-                console.log('Network error:', error.message);
-                leaderboardContent.innerHTML = '<div class="loading">🌐 네트워크 오류<br>인터넷 연결을 확인해주세요</div>';
-                document.getElementById('totalClicks').textContent = '0';
-                document.getElementById('totalCountries').textContent = '0';
+                console.error('Error loading rankings:', error);
+                document.getElementById('leaderboardContent').innerHTML = '<div class="loading">Error loading rankings</div>';
             }
         }
         
