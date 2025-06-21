@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF 테스트 - OIIA OIIA CAT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .test-container {
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .cat {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            object-fit: cover;
+            margin: 1rem;
+        }
+
+        .cat:hover {
+            transform: scale(1.05);
+        }
+
+        .cat:active {
+            transform: scale(0.95);
+        }
+
+        .info {
+            margin: 1rem 0;
+            font-size: 1.2rem;
+        }
+
+        .button {
+            background: #4fc3f7;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            background: #29b6f6;
+            transform: translateY(-2px);
+        }
+
+        .debug {
+            background: rgba(0,0,0,0.8);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+            text-align: left;
+            max-width: 600px;
+        }
+
+        .gif-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .gif-item {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .gif-item img {
+            width: 150px;
+            height: 150px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">GIF 테스트 페이지</h1>
+    
+    <div class="test-container">
+        <div class="info">현재 고양이 이미지:</div>
+        <img id="mainCat" class="cat" src="./public/cat-static.gif" alt="메인 고양이">
+        
+        <div class="info">
+            <button class="button" onclick="testStatic()">정적 이미지</button>
+            <button class="button" onclick="testSpin()">회전 이미지</button>
+            <button class="button" onclick="testFallback()">대체 이미지</button>
+        </div>
+
+        <div class="debug" id="debugInfo">
+            로딩 중...
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>모든 GIF 파일 테스트:</h2>
+        <div class="gif-grid">
+            <div class="gif-item">
+                <h3>cat-static.gif</h3>
+                <img src="./public/cat-static.gif" alt="정적 고양이" onerror="this.style.border='3px solid red'">
+            </div>
+            <div class="gif-item">
+                <h3>cat-spin.gif</h3>
+                <img src="./public/cat-spin.gif" alt="회전 고양이" onerror="this.style.border='3px solid red'">
+            </div>
+            <div class="gif-item">
+                <h3>1.gif</h3>
+                <img src="./public/1.gif" alt="대체 이미지 1" onerror="this.style.border='3px solid red'">
+            </div>
+            <div class="gif-item">
+                <h3>1 (2).gif</h3>
+                <img src="./public/1 (2).gif" alt="대체 이미지 2" onerror="this.style.border='3px solid red'">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mainCat = document.getElementById('mainCat');
+        const debugInfo = document.getElementById('debugInfo');
+
+        function updateDebug(message) {
+            const currentSrc = mainCat.src.split('/').pop().split('?')[0];
+            const timestamp = new Date().toLocaleTimeString();
+            debugInfo.innerHTML = `
+                [${timestamp}] ${message}<br>
+                현재 이미지: ${currentSrc}<br>
+                전체 경로: ${mainCat.src}<br>
+                이미지 크기: ${mainCat.naturalWidth} x ${mainCat.naturalHeight}
+            `;
+        }
+
+        function testStatic() {
+            mainCat.src = './public/cat-static.gif?v=' + Date.now();
+            updateDebug('정적 이미지로 변경 시도');
+        }
+
+        function testSpin() {
+            mainCat.src = './public/cat-spin.gif?v=' + Date.now();
+            updateDebug('회전 이미지로 변경 시도');
+        }
+
+        function testFallback() {
+            mainCat.src = './public/1.gif?v=' + Date.now();
+            updateDebug('대체 이미지로 변경 시도');
+        }
+
+        // 이미지 로드/에러 이벤트
+        mainCat.onload = function() {
+            updateDebug('이미지 로드 성공!');
+        };
+
+        mainCat.onerror = function() {
+            updateDebug('이미지 로드 실패! 대체 이미지 시도...');
+            this.src = './public/1.gif?v=' + Date.now();
+        };
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDebug('페이지 로드 완료');
+            
+            // 모든 이미지 경로 테스트
+            console.log('=== GIF 파일 경로 테스트 ===');
+            const testPaths = [
+                './public/cat-static.gif',
+                './public/cat-spin.gif', 
+                './public/1.gif',
+                './public/1 (2).gif'
+            ];
+
+            testPaths.forEach(path => {
+                const img = new Image();
+                img.onload = () => console.log(`✅ ${path} 로드 성공`);
+                img.onerror = () => console.log(`❌ ${path} 로드 실패`);
+                img.src = path;
+            });
+        });
+    </script>
+</body>
+</html> 
