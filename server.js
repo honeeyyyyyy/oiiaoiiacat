@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const axios = require('axios');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -20,11 +21,92 @@ app.use(express.static('.'));
 let countryData = {};
 let totalClicks = 0;
 
-// 실제 IP 기반 국가 감지 (기본값만 설정)
-function getCountryFromIP(ip) {
-    // 실제 환경에서는 IP geolocation API를 사용하지만
-    // 현재는 간단하게 대한민국으로 설정
-    // 추후 실제 IP API 연동 시 여기를 수정
+// 국가 코드를 한글 이름으로 매핑
+const countryNames = {
+    'KR': '대한민국', 'US': '미국', 'JP': '일본', 'CN': '중국', 'DE': '독일',
+    'FR': '프랑스', 'GB': '영국', 'CA': '캐나다', 'AU': '호주', 'BR': '브라질',
+    'IN': '인도', 'RU': '러시아', 'IT': '이탈리아', 'ES': '스페인', 'NL': '네덜란드',
+    'MX': '멕시코', 'AR': '아르헨티나', 'TH': '태국', 'VN': '베트남', 'SG': '싱가포르',
+    'MY': '말레이시아', 'PH': '필리핀', 'ID': '인도네시아', 'TR': '터키', 'SA': '사우디아라비아',
+    'AE': '아랍에미리트', 'IL': '이스라엘', 'EG': '이집트', 'ZA': '남아프리카공화국', 'NG': '나이지리아',
+    'KE': '케냐', 'GH': '가나', 'MA': '모로코', 'TN': '튀니지', 'DZ': '알제리',
+    'SE': '스웨덴', 'NO': '노르웨이', 'DK': '덴마크', 'FI': '핀란드', 'IS': '아이슬란드',
+    'IE': '아일랜드', 'PT': '포르투갈', 'CH': '스위스', 'AT': '오스트리아', 'BE': '벨기에',
+    'LU': '룩셈부르크', 'PL': '폴란드', 'CZ': '체코', 'SK': '슬로바키아', 'HU': '헝가리',
+    'RO': '루마니아', 'BG': '불가리아', 'HR': '크로아티아', 'SI': '슬로베니아', 'RS': '세르비아',
+    'BA': '보스니아헤르체고비나', 'MK': '북마케도니아', 'AL': '알바니아', 'ME': '몬테네그로', 'XK': '코소보',
+    'GR': '그리스', 'CY': '키프로스', 'MT': '몰타', 'LV': '라트비아', 'LT': '리투아니아',
+    'EE': '에스토니아', 'BY': '벨라루스', 'UA': '우크라이나', 'MD': '몰도바', 'GE': '조지아',
+    'AM': '아르메니아', 'AZ': '아제르바이잔', 'KZ': '카자흐스탄', 'UZ': '우즈베키스탄', 'KG': '키르기스스탄',
+    'TJ': '타지키스탄', 'TM': '투르크메니스탄', 'MN': '몽골', 'NP': '네팔', 'BD': '방글라데시',
+    'LK': '스리랑카', 'MM': '미얀마', 'KH': '캄보디아', 'LA': '라오스', 'BT': '부탄',
+    'MV': '몰디브', 'AF': '아프가니스탄', 'PK': '파키스탄', 'IR': '이란', 'IQ': '이라크',
+    'SY': '시리아', 'LB': '레바논', 'JO': '요단', 'PS': '팔레스타인', 'YE': '예멘',
+    'OM': '오만', 'QA': '카타르', 'BH': '바레인', 'KW': '쿠웨이트'
+};
+
+// 실제 IP 기반 국가 감지 (여러 API 사용)
+async function getCountryFromIP(ip) {
+    // 로컬 IP는 대한민국으로 처리
+    if (ip === '127.0.0.1' || ip === 'localhost' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
+        return '대한민국';
+    }
+
+    try {
+        // 첫 번째 시도: ip-api.com (무료, 빠름)
+        try {
+            const response = await axios.get(`http://ip-api.com/json/${ip}?fields=status,country,countryCode`, {
+                timeout: 3000
+            });
+            
+            if (response.data && response.data.status === 'success') {
+                const countryCode = response.data.countryCode;
+                const countryName = countryNames[countryCode] || response.data.country || '알 수 없음';
+                console.log(`IP ${ip} → ${countryName} (${countryCode}) via ip-api.com`);
+                return countryName;
+            }
+        } catch (error) {
+            console.log(`ip-api.com 실패: ${error.message}`);
+        }
+
+        // 두 번째 시도: ipapi.co (무료 한도 있음)
+        try {
+            const response = await axios.get(`https://ipapi.co/${ip}/json/`, {
+                timeout: 3000
+            });
+            
+            if (response.data && response.data.country_code) {
+                const countryCode = response.data.country_code;
+                const countryName = countryNames[countryCode] || response.data.country_name || '알 수 없음';
+                console.log(`IP ${ip} → ${countryName} (${countryCode}) via ipapi.co`);
+                return countryName;
+            }
+        } catch (error) {
+            console.log(`ipapi.co 실패: ${error.message}`);
+        }
+
+        // 세 번째 시도: ipinfo.io (무료 한도 있음)
+        try {
+            const response = await axios.get(`https://ipinfo.io/${ip}/json`, {
+                timeout: 3000
+            });
+            
+            if (response.data && response.data.country) {
+                const countryCode = response.data.country;
+                const countryName = countryNames[countryCode] || countryCode || '알 수 없음';
+                console.log(`IP ${ip} → ${countryName} (${countryCode}) via ipinfo.io`);
+                return countryName;
+            }
+        } catch (error) {
+            console.log(`ipinfo.io 실패: ${error.message}`);
+        }
+
+    } catch (error) {
+        console.error(`IP 국가 감지 전체 실패: ${error.message}`);
+    }
+
+    // 모든 API 실패 시 기본값
+    console.log(`IP ${ip} → 대한민국 (기본값)`);
     return '대한민국';
 }
 
@@ -362,7 +444,7 @@ app.get('/', (req, res) => {
     </style>
 </head>
 <body>
-    <div class="version">v3.0 REAL</div>
+    <div class="version">v4.0 VPN</div>
     
     <div class="container">
         <div class="score-container">
@@ -474,7 +556,7 @@ app.get('/', (req, res) => {
                 
                 const data = await response.json();
                 if (data.success) {
-                    console.log('실제 클릭 기록됨 - ' + data.countryName + ': ' + data.clicks + '회');
+                    console.log('실제 클릭 기록됨 - ' + data.countryName + ': ' + data.clicks + '회 (VPN 감지 가능)');
                     
                     // 랭킹이 열려있으면 업데이트
                     if (rankingVisible) {
@@ -552,7 +634,7 @@ app.get('/', (req, res) => {
         
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('OIIA OIIA CAT v3.0 REAL - 실제 클릭 데이터만 사용!');
+            console.log('OIIA OIIA CAT v4.0 VPN - VPN 감지 가능한 실제 IP 기반 랭킹!');
         });
         
         // 자동 랭킹 업데이트 (30초마다)
@@ -568,16 +650,19 @@ app.get('/', (req, res) => {
     res.send(htmlContent);
 });
 
-// 실제 클릭 API - 가짜 데이터 없음
-app.post('/api/click', (req, res) => {
+// 실제 클릭 API - VPN 감지 가능
+app.post('/api/click', async (req, res) => {
     try {
-        const clientIP = req.headers['x-forwarded-for'] || 
+        const clientIP = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 
                         req.headers['x-real-ip'] || 
                         req.connection.remoteAddress || 
                         req.socket.remoteAddress ||
                         '127.0.0.1';
         
-        const country = getCountryFromIP(clientIP);
+        console.log(`클릭 요청 IP: ${clientIP}`);
+        
+        // 실제 IP 기반 국가 감지 (VPN 감지 가능)
+        const country = await getCountryFromIP(clientIP);
         
         // 실제 사용자 클릭만 기록
         if (!countryData[country]) {
@@ -586,13 +671,14 @@ app.post('/api/click', (req, res) => {
         countryData[country]++;
         totalClicks++;
         
-        console.log(`실제 클릭 기록: ${clientIP} (${country}) - 총 ${countryData[country]}회 클릭`);
+        console.log(`✅ 실제 클릭 기록: ${clientIP} → ${country} (총 ${countryData[country]}회)`);
         
         res.json({
             success: true,
             countryName: country,
             clicks: countryData[country],
-            totalClicks: totalClicks
+            totalClicks: totalClicks,
+            detectedIP: clientIP
         });
     } catch (error) {
         console.error('클릭 처리 오류:', error);
@@ -655,8 +741,9 @@ app.get('/privacy.html', (req, res) => {
 
 // 서버 시작
 app.listen(port, () => {
-    console.log(`OIIA OIIA CAT v3.0 REAL Server 시작 - 포트 ${port}`);
-    console.log(`실제 클릭 데이터만 사용: 총 ${totalClicks}회, ${Object.keys(countryData).length}개국`);
+    console.log(`OIIA OIIA CAT v4.0 VPN Server 시작 - 포트 ${port}`);
+    console.log(`VPN 감지 가능한 실제 IP 기반 랭킹 시스템!`);
+    console.log(`실제 클릭 데이터: 총 ${totalClicks}회, ${Object.keys(countryData).length}개국`);
 });
 
 module.exports = app; 
