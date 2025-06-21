@@ -200,21 +200,16 @@ app.get('/', (req, res) => {
             height: 80vh;
             max-width: none;
             object-fit: contain;
-            opacity: 0;
-            display: none;
             mix-blend-mode: multiply;
+            transition: opacity 0.1s ease;
         }
 
         #cat-static { 
             transform: scale(0.9);
-            opacity: 1;
-            display: block;
         }
         
         #cat-spin { 
             transform: scale(1.2);
-            opacity: 0;
-            display: none;
         }
 
         .cat.active {
@@ -454,7 +449,7 @@ app.get('/', (req, res) => {
     </style>
 </head>
 <body>
-    <div class="version">v6.0 STATIC</div>
+    <div class="version">v7.0 INSTANT</div>
     
     <div class="container">
         <div class="score-container">
@@ -520,19 +515,19 @@ app.get('/', (req, res) => {
         const clickCountElement = document.getElementById('clickCount');
         const spinSound = document.getElementById('spinSound');
         
-        // 고양이 클릭 처리 - 클릭 시에만 애니메이션 GIF와 사운드 동시 적용
+        // 고양이 클릭 처리 - 클릭 시 즉시 애니메이션 GIF와 사운드, 바로 복원
         function handleCatClick() {
             if (isSpinning) return;
             
             clickCount++;
             clickCountElement.textContent = clickCount;
+            isSpinning = true;
             
-            // 정적 이미지 숨기고 애니메이션 GIF 표시
+            // 즉시 애니메이션 GIF로 전환
             catStatic.classList.remove('active');
             catStatic.classList.add('inactive');
             catSpin.classList.remove('inactive');
             catSpin.classList.add('active');
-            isSpinning = true;
             
             // 클릭할 때만 사운드 재생
             try {
@@ -543,14 +538,14 @@ app.get('/', (req, res) => {
             // 서버에 클릭 전송
             sendClickToServer();
             
-            // 1초 후 정적 이미지로 복원 (애니메이션 GIF 멈춤)
+            // 사운드 재생 완료 후 즉시 정적 이미지로 복원
             setTimeout(() => {
                 catSpin.classList.remove('active');
                 catSpin.classList.add('inactive');
                 catStatic.classList.remove('inactive');
                 catStatic.classList.add('active');
                 isSpinning = false;
-            }, 1000);
+            }, 100); // 매우 짧은 딜레이로 즉시 복원
         }
         
         // 서버에 클릭 데이터 전송
@@ -640,7 +635,7 @@ app.get('/', (req, res) => {
         
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('OIIA OIIA CAT v6.0 STATIC - 클릭하지 않으면 정적, 클릭하면 애니메이션!');
+            console.log('OIIA OIIA CAT v7.0 INSTANT - 클릭 시 즉시 애니메이션, 바로 복원!');
         });
         
         // 자동 랭킹 업데이트 (30초마다)
