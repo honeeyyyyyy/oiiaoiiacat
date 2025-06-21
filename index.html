@@ -330,17 +330,12 @@
             클릭 수: <span id="clickCount">0</span>
         </div>
         
-        <div class="cat-container" 
-             onmousedown="startSpin()" 
-             onmouseup="stopSpin()" 
-             onmouseleave="stopSpin()">
+        <div class="cat-container" onclick="handleCatClick()">
             <img id="cat-static" class="cat active" src="cat-static.gif" alt="OIIA OIIA CAT">
             <img id="cat-spin" class="cat" src="cat-spin.gif" alt="OIIA OIIA CAT Spinning">
         </div>
         
-        <div class="info">
-            마우스를 누르고 있으면 고양이가 돌아가요! 🐱
-        </div>
+
     </div>
 
     <!-- 랭킹 시스템 -->
@@ -394,8 +389,8 @@
         const clickCountElement = document.getElementById('clickCount');
         const spinSound = document.getElementById('spinSound');
         
-        // 마우스 홀드 시작
-        function startSpin() {
+        // 고양이 클릭 처리
+        function handleCatClick() {
             if (isSpinning) return;
             
             clickCount++;
@@ -406,32 +401,22 @@
             catSpin.classList.add('active');
             isSpinning = true;
             
-            // 소리 재생 (루프)
+            // 소리 재생 (한 번만)
             try {
                 spinSound.currentTime = 0;
-                spinSound.loop = true;
+                spinSound.loop = false;
                 spinSound.play().catch(() => {});
             } catch (e) {}
             
             // 서버에 클릭 전송
             sendClickToServer();
-        }
-        
-        // 마우스 홀드 종료
-        function stopSpin() {
-            if (!isSpinning) return;
             
-            // 즉시 정적 이미지로 복원
-            catSpin.classList.remove('active');
-            catStatic.classList.add('active');
-            isSpinning = false;
-            
-            // 소리 즉시 중지
-            try {
-                spinSound.pause();
-                spinSound.currentTime = 0;
-                spinSound.loop = false;
-            } catch (e) {}
+            // 1.5초 후 정적 이미지로 복원
+            setTimeout(() => {
+                catSpin.classList.remove('active');
+                catStatic.classList.add('active');
+                isSpinning = false;
+            }, 1500);
         }
         
         // 서버에 클릭 데이터 전송
@@ -517,11 +502,17 @@
             }
         }
         
-        // 키보드 이벤트 제거 - 마우스 홀드만 허용
+        // 키보드 이벤트 (스페이스바)
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space') {
+                event.preventDefault();
+                handleCatClick();
+            }
+        });
         
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('OIIA OIIA CAT v1.0 PERFECT loaded!');
+            console.log('OIIA OIIA CAT v11.0 CLICK - 클릭으로 고양이 돌리기!');
         });
         
         // 자동 랭킹 업데이트 (30초마다)
