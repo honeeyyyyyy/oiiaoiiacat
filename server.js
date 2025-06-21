@@ -9,6 +9,41 @@ const PORT = process.env.PORT || 3000;
 let clickData = [];
 let countryStats = {};
 
+// 초기 테스트 데이터 추가 (서버 시작 시)
+function initializeTestData() {
+    const testCountries = ['KR', 'US', 'JP', 'CN', 'GB'];
+    const now = new Date();
+    
+    testCountries.forEach((country, index) => {
+        const clicks = Math.floor(Math.random() * 50) + 10; // 10-60 랜덤 클릭
+        
+        countryStats[country] = {
+            clicks: clicks,
+            name: countryNames[country],
+            lastClick: new Date(now.getTime() - Math.random() * 3600000) // 1시간 내 랜덤
+        };
+        
+        // 클릭 데이터도 추가
+        for (let i = 0; i < clicks; i++) {
+            clickData.push({
+                country: country,
+                countryName: countryNames[country],
+                ip: `192.168.1.${Math.floor(Math.random() * 255)}`,
+                timestamp: new Date(now.getTime() - Math.random() * 3600000),
+                version: '10.0.world-rank'
+            });
+        }
+    });
+    
+    console.log('테스트 데이터 초기화 완료:', {
+        totalClicks: clickData.length,
+        countries: Object.keys(countryStats).length
+    });
+}
+
+// 서버 시작 시 테스트 데이터 초기화
+initializeTestData();
+
 // 국가 코드를 한국어 이름으로 매핑
 const countryNames = {
     'KR': '🇰🇷 대한민국',
@@ -130,6 +165,17 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// 디버깅용 데이터 확인 엔드포인트
+app.get('/api/debug', (req, res) => {
+    res.json({
+        clickData: clickData.slice(-10), // 최근 10개 클릭만
+        countryStats: countryStats,
+        totalClicks: clickData.length,
+        totalCountries: Object.keys(countryStats).length,
+        sampleIP: req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown'
+    });
+});
+
 // 클릭 기록 API (실제 지역 감지)
 app.post('/api/click', async (req, res) => {
     try {
@@ -201,6 +247,12 @@ app.post('/api/click', async (req, res) => {
 // 랭킹 조회 API (실제 국가별 통계)
 app.get('/api/rankings', async (req, res) => {
     try {
+        console.log('랭킹 조회 요청:', {
+            totalData: clickData.length,
+            countries: Object.keys(countryStats).length,
+            stats: countryStats
+        });
+
         // 국가별 랭킹 생성
         const rankings = Object.entries(countryStats)
             .map(([countryCode, stats]) => ({
@@ -221,14 +273,22 @@ app.get('/api/rankings', async (req, res) => {
             new Date() - new Date(click.timestamp) < 24 * 60 * 60 * 1000 // 24시간 내
         ).length;
 
-        res.json({
+        const result = {
             success: true,
             rankings: rankings,
             totalClicks: totalClicks,
             totalCountries: totalCountries,
             recentClicks: recentClicks,
-            lastUpdate: new Date().toISOString()
-        });
+            lastUpdate: new Date().toISOString(),
+            debug: {
+                hasData: clickData.length > 0,
+                hasStats: Object.keys(countryStats).length > 0,
+                sampleData: clickData.slice(-3)
+            }
+        };
+
+        console.log('랭킹 응답:', result);
+        res.json(result);
         
     } catch (error) {
         console.error('랭킹 조회 오류:', error);
