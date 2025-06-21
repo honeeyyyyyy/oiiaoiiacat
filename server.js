@@ -201,24 +201,23 @@ app.get('/', (req, res) => {
             max-width: none;
             object-fit: contain;
             mix-blend-mode: multiply;
-            transition: opacity 0.1s ease;
         }
 
         #cat-static { 
             transform: scale(0.9);
+            display: block;
         }
         
         #cat-spin { 
             transform: scale(1.2);
+            display: none;
         }
 
-        .cat.active {
-            opacity: 1;
+        .cat.show {
             display: block;
         }
 
-        .cat.inactive {
-            opacity: 0;
+        .cat.hide {
             display: none;
         }
 
@@ -449,7 +448,7 @@ app.get('/', (req, res) => {
     </style>
 </head>
 <body>
-    <div class="version">v7.0 INSTANT</div>
+    <div class="version">v8.0 PERFECT</div>
     
     <div class="container">
         <div class="score-container">
@@ -457,8 +456,8 @@ app.get('/', (req, res) => {
         </div>
         
         <div class="cat-container" onclick="handleCatClick()">
-            <img id="cat-static" class="cat active" src="/cat-static.gif" alt="OIIA OIIA CAT">
-            <img id="cat-spin" class="cat inactive" src="/cat-spin.gif" alt="OIIA OIIA CAT Spinning">
+            <img id="cat-static" class="cat show" src="/cat-static.gif" alt="OIIA OIIA CAT">
+            <img id="cat-spin" class="cat hide" src="/cat-spin.gif" alt="OIIA OIIA CAT Spinning">
         </div>
         
 
@@ -524,10 +523,10 @@ app.get('/', (req, res) => {
             isSpinning = true;
             
             // 즉시 애니메이션 GIF로 전환
-            catStatic.classList.remove('active');
-            catStatic.classList.add('inactive');
-            catSpin.classList.remove('inactive');
-            catSpin.classList.add('active');
+            catStatic.classList.remove('show');
+            catStatic.classList.add('hide');
+            catSpin.classList.remove('hide');
+            catSpin.classList.add('show');
             
             // 클릭할 때만 사운드 재생
             try {
@@ -540,10 +539,10 @@ app.get('/', (req, res) => {
             
             // 사운드 재생 완료 후 즉시 정적 이미지로 복원
             setTimeout(() => {
-                catSpin.classList.remove('active');
-                catSpin.classList.add('inactive');
-                catStatic.classList.remove('inactive');
-                catStatic.classList.add('active');
+                catSpin.classList.remove('show');
+                catSpin.classList.add('hide');
+                catStatic.classList.remove('hide');
+                catStatic.classList.add('show');
                 isSpinning = false;
             }, 100); // 매우 짧은 딜레이로 즉시 복원
         }
@@ -635,7 +634,7 @@ app.get('/', (req, res) => {
         
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('OIIA OIIA CAT v7.0 INSTANT - 클릭 시 즉시 애니메이션, 바로 복원!');
+            console.log('OIIA OIIA CAT v8.0 PERFECT - 완전 정적에서 클릭 시에만 애니메이션!');
         });
         
         // 자동 랭킹 업데이트 (30초마다)
