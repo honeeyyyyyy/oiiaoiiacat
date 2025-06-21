@@ -274,7 +274,7 @@
     </style>
 </head>
 <body>
-    <div class="version">v15.0 CACHE-BUST</div>
+    <div class="version">v16.0 NEW-GIFS</div>
     
     <div class="container">
         <div class="score">
@@ -282,7 +282,7 @@
         </div>
         
         <div class="cat-area" onclick="clickCat()">
-            <img id="catImg" class="cat-image" src="cat-static.gif?v=15.0" alt="OIIA OIIA CAT">
+            <img id="catImg" class="cat-image" src="cat-static.gif?v=16.0" alt="OIIA OIIA CAT">
         </div>
     </div>
 
@@ -350,7 +350,7 @@
             
                          // 애니메이션 시작
              isAnimating = true;
-             catImg.src = 'cat-spin.gif?v=15.0';
+             catImg.src = 'cat-spin.gif?v=16.0';
              
              // 사운드 재생
              try {
@@ -365,7 +365,7 @@
              
              // 1.2초 후 원래 이미지로 복원
              setTimeout(() => {
-                 catImg.src = 'cat-static.gif?v=15.0';
+                 catImg.src = 'cat-static.gif?v=16.0';
                  isAnimating = false;
              }, 1200);
         }
@@ -460,7 +460,7 @@
 
                  // 페이지 로드 시 초기화
          document.addEventListener('DOMContentLoaded', () => {
-             console.log('OIIA OIIA CAT v15.0 CACHE-BUST - 캐시 무효화!');
+             console.log('OIIA OIIA CAT v16.0 NEW-GIFS - 새로운 GIF 파일!');
              // 강제로 이미지 새로고침
              const img = document.getElementById('catImg');
              img.onload = () => console.log('Cat image loaded successfully!');
