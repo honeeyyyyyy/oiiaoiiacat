@@ -274,7 +274,7 @@
     </style>
 </head>
 <body>
-    <div class="version">v14.0 FRESH</div>
+    <div class="version">v15.0 CACHE-BUST</div>
     
     <div class="container">
         <div class="score">
@@ -282,7 +282,7 @@
         </div>
         
         <div class="cat-area" onclick="clickCat()">
-            <img id="catImg" class="cat-image" src="cat-static.gif" alt="OIIA OIIA CAT">
+            <img id="catImg" class="cat-image" src="cat-static.gif?v=15.0" alt="OIIA OIIA CAT">
         </div>
     </div>
 
@@ -348,26 +348,26 @@
             clickCount++;
             clickCounter.textContent = clickCount;
             
-            // 애니메이션 시작
-            isAnimating = true;
-            catImg.src = 'cat-spin.gif';
-            
-            // 사운드 재생
-            try {
-                catSound.currentTime = 0;
-                catSound.play().catch(() => {});
-            } catch (e) {
-                console.log('Sound play failed:', e);
-            }
-            
-            // 서버에 클릭 전송
-            sendClick();
-            
-            // 1.2초 후 원래 이미지로 복원
-            setTimeout(() => {
-                catImg.src = 'cat-static.gif';
-                isAnimating = false;
-            }, 1200);
+                         // 애니메이션 시작
+             isAnimating = true;
+             catImg.src = 'cat-spin.gif?v=15.0';
+             
+             // 사운드 재생
+             try {
+                 catSound.currentTime = 0;
+                 catSound.play().catch(() => {});
+             } catch (e) {
+                 console.log('Sound play failed:', e);
+             }
+             
+             // 서버에 클릭 전송
+             sendClick();
+             
+             // 1.2초 후 원래 이미지로 복원
+             setTimeout(() => {
+                 catImg.src = 'cat-static.gif?v=15.0';
+                 isAnimating = false;
+             }, 1200);
         }
 
         // 서버에 클릭 전송
@@ -458,10 +458,14 @@
             }
         });
 
-        // 페이지 로드 시 초기화
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('OIIA OIIA CAT v14.0 FRESH - 완전히 새로 시작!');
-        });
+                 // 페이지 로드 시 초기화
+         document.addEventListener('DOMContentLoaded', () => {
+             console.log('OIIA OIIA CAT v15.0 CACHE-BUST - 캐시 무효화!');
+             // 강제로 이미지 새로고침
+             const img = document.getElementById('catImg');
+             img.onload = () => console.log('Cat image loaded successfully!');
+             img.onerror = () => console.error('Cat image failed to load!');
+         });
 
         // 자동 랭킹 업데이트 (30초마다)
         setInterval(() => {
