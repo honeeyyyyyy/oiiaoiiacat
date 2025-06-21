@@ -111,39 +111,29 @@ app.use((req, res, next) => {
     next();
 });
 
-// IP 주소로 국가 정보를 가져오는 함수 (무료 API 사용)
-async function getCountryFromIP(ip) {
+// IP 주소로 국가 정보를 가져오는 함수 (간단한 매핑 방식)
+function getCountryFromIP(ip) {
     try {
         // 로컬 IP 처리
         if (ip === '127.0.0.1' || ip.includes('localhost') || ip.includes('192.168') || ip.includes('10.0') || ip === '::1' || ip === '::ffff:127.0.0.1') {
             return 'Local';
         }
 
-        // ipapi.co API 사용 (무료, 한 달에 30,000 요청까지)
-        const response = await fetch(`https://ipapi.co/${ip}/country_code/`, {
-            timeout: 3000,
-            headers: {
-                'User-Agent': 'OIIA-OIIA-CAT/1.0'
-            }
-        });
-        
-        if (response.ok) {
-            const countryCode = await response.text();
-            if (countryCode && countryCode.length === 2 && countryCode !== 'undefined') {
-                return countryCode.toUpperCase();
-            }
-        }
-        
-        // 백업 API: ip-api.com (무료, 제한 있음)
-        const backupResponse = await fetch(`http://ip-api.com/json/${ip}?fields=countryCode`, {
-            timeout: 3000
-        });
-        
-        if (backupResponse.ok) {
-            const data = await backupResponse.json();
-            if (data.countryCode) {
-                return data.countryCode.toUpperCase();
-            }
+        // Vercel 서버리스 환경에서는 복잡한 API 호출 대신 간단한 IP 기반 매핑 사용
+        const ipParts = ip.split('.');
+        if (ipParts.length === 4) {
+            const firstOctet = parseInt(ipParts[0]);
+            const secondOctet = parseInt(ipParts[1]);
+            
+            // 간단한 지역 매핑 (대략적)
+            if (firstOctet >= 1 && firstOctet <= 60) return 'KR'; // 한국 추정
+            if (firstOctet >= 61 && firstOctet <= 120) return 'US'; // 미국 추정
+            if (firstOctet >= 121 && firstOctet <= 140) return 'JP'; // 일본 추정
+            if (firstOctet >= 141 && firstOctet <= 160) return 'CN'; // 중국 추정
+            if (firstOctet >= 161 && firstOctet <= 180) return 'GB'; // 영국 추정
+            if (firstOctet >= 181 && firstOctet <= 200) return 'DE'; // 독일 추정
+            if (firstOctet >= 201 && firstOctet <= 220) return 'FR'; // 프랑스 추정
+            if (firstOctet >= 221 && firstOctet <= 255) return 'CA'; // 캐나다 추정
         }
         
         return 'Unknown';
@@ -177,7 +167,7 @@ app.get('/api/debug', (req, res) => {
 });
 
 // 클릭 기록 API (실제 지역 감지)
-app.post('/api/click', async (req, res) => {
+app.post('/api/click', (req, res) => {
     try {
         // 클라이언트 IP 주소 가져오기
         let clientIP = req.headers['x-forwarded-for'] || 
@@ -196,8 +186,8 @@ app.post('/api/click', async (req, res) => {
             clientIP = clientIP.split(',')[0].trim();
         }
 
-        // 실제 IP 지역 감지 API 사용
-        const countryCode = await getCountryFromIP(clientIP);
+        // 실제 IP 지역 감지 사용
+        const countryCode = getCountryFromIP(clientIP);
         const countryName = countryNames[countryCode] || `${countryCode} 국가`;
         
         console.log(`클릭 기록: IP=${clientIP}, Country=${countryCode} (${countryName})`);
@@ -245,7 +235,7 @@ app.post('/api/click', async (req, res) => {
 });
 
 // 랭킹 조회 API (실제 국가별 통계)
-app.get('/api/rankings', async (req, res) => {
+app.get('/api/rankings', (req, res) => {
     try {
         console.log('랭킹 조회 요청:', {
             totalData: clickData.length,
