@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GIF Test</title>
+    <style>
+        body { text-align: center; padding: 50px; }
+        img { margin: 20px; border: 2px solid red; }
+    </style>
+</head>
+<body>
+    <h1>GIF File Test</h1>
+    
+    <h2>cat-static.gif</h2>
+    <img src="cat-static.gif?v=test1" width="200" height="200">
+    
+    <h2>cat-spin.gif</h2>
+    <img src="cat-spin.gif?v=test1" width="200" height="200">
+    
+    <button onclick="location.reload()">새로고침</button>
+    
+    <script>
+        console.log('Static GIF size check');
+        fetch('cat-static.gif').then(r => r.blob()).then(b => console.log('Static GIF size:', b.size));
+        
+        console.log('Spin GIF size check');
+        fetch('cat-spin.gif').then(r => r.blob()).then(b => console.log('Spin GIF size:', b.size));
+    </script>
+</body>
+</html> 
