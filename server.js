@@ -448,14 +448,14 @@ app.get('/', (req, res) => {
     </style>
 </head>
 <body>
-    <div class="version">v8.0 PERFECT</div>
+    <div class="version">v9.0 HOLD</div>
     
     <div class="container">
         <div class="score-container">
             클릭 수: <span id="clickCount">0</span>
         </div>
         
-        <div class="cat-container" onclick="handleCatClick()">
+        <div class="cat-container" onmousedown="startCatSpin()" onmouseup="stopCatSpin()" onmouseleave="stopCatSpin()">
             <img id="cat-static" class="cat show" src="/cat-static.gif" alt="OIIA OIIA CAT">
             <img id="cat-spin" class="cat hide" src="/cat-spin.gif" alt="OIIA OIIA CAT Spinning">
         </div>
@@ -508,19 +508,20 @@ app.get('/', (req, res) => {
         let clickCount = 0;
         let isSpinning = false;
         let rankingVisible = false;
+        let isMouseDown = false;
         
         const catStatic = document.getElementById('cat-static');
         const catSpin = document.getElementById('cat-spin');
         const clickCountElement = document.getElementById('clickCount');
         const spinSound = document.getElementById('spinSound');
         
-        // 고양이 클릭 처리 - 클릭 시 즉시 애니메이션 GIF와 사운드, 바로 복원
-        function handleCatClick() {
-            if (isSpinning) return;
+        // 마우스를 누르는 순간 애니메이션과 사운드 시작
+        function startCatSpin() {
+            if (isMouseDown) return;
             
+            isMouseDown = true;
             clickCount++;
             clickCountElement.textContent = clickCount;
-            isSpinning = true;
             
             // 즉시 애니메이션 GIF로 전환
             catStatic.classList.remove('show');
@@ -528,23 +529,35 @@ app.get('/', (req, res) => {
             catSpin.classList.remove('hide');
             catSpin.classList.add('show');
             
-            // 클릭할 때만 사운드 재생
+            // 사운드 재생 시작 (루프)
             try {
                 spinSound.currentTime = 0;
+                spinSound.loop = true;
                 spinSound.play().catch(() => {});
             } catch (e) {}
             
             // 서버에 클릭 전송
             sendClickToServer();
+        }
+        
+        // 마우스를 놓는 순간 애니메이션과 사운드 즉시 중지
+        function stopCatSpin() {
+            if (!isMouseDown) return;
             
-            // 사운드 재생 완료 후 즉시 정적 이미지로 복원
-            setTimeout(() => {
-                catSpin.classList.remove('show');
-                catSpin.classList.add('hide');
-                catStatic.classList.remove('hide');
-                catStatic.classList.add('show');
-                isSpinning = false;
-            }, 100); // 매우 짧은 딜레이로 즉시 복원
+            isMouseDown = false;
+            
+            // 즉시 정적 이미지로 복원
+            catSpin.classList.remove('show');
+            catSpin.classList.add('hide');
+            catStatic.classList.remove('hide');
+            catStatic.classList.add('show');
+            
+            // 사운드 즉시 중지
+            try {
+                spinSound.pause();
+                spinSound.currentTime = 0;
+                spinSound.loop = false;
+            } catch (e) {}
         }
         
         // 서버에 클릭 데이터 전송
@@ -634,7 +647,7 @@ app.get('/', (req, res) => {
         
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('OIIA OIIA CAT v8.0 PERFECT - 완전 정적에서 클릭 시에만 애니메이션!');
+            console.log('OIIA OIIA CAT v9.0 HOLD - 마우스 누르고 있는 동안만 애니메이션과 사운드!');
         });
         
         // 자동 랭킹 업데이트 (30초마다)
