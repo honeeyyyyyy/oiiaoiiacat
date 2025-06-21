@@ -230,6 +230,7 @@ app.get('/', (req, res) => {
             border-radius: 15px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             z-index: 100;
+            display: none;
         }
 
         /* 토글 가능한 랭킹 시스템 */
@@ -444,7 +445,7 @@ app.get('/', (req, res) => {
     </style>
 </head>
 <body>
-    <div class="version">v4.0 VPN</div>
+    <div class="version">v5.0 CLICK</div>
     
     <div class="container">
         <div class="score-container">
@@ -456,9 +457,7 @@ app.get('/', (req, res) => {
             <img id="cat-spin" class="cat" src="/cat-spin.gif" alt="OIIA OIIA CAT Spinning">
         </div>
         
-        <div class="info">
-            스페이스바 또는 클릭으로 고양이를 돌려보세요!
-        </div>
+
     </div>
 
     <!-- 랭킹 시스템 -->
@@ -512,19 +511,19 @@ app.get('/', (req, res) => {
         const clickCountElement = document.getElementById('clickCount');
         const spinSound = document.getElementById('spinSound');
         
-        // 고양이 클릭 처리
+        // 고양이 클릭 처리 - 클릭 시에만 애니메이션과 사운드 동시 적용
         function handleCatClick() {
             if (isSpinning) return;
             
             clickCount++;
             clickCountElement.textContent = clickCount;
             
-            // 고양이 이미지 변경 및 소리 재생
+            // 애니메이션과 사운드 동시 시작
             catStatic.classList.remove('active');
             catSpin.classList.add('active');
             isSpinning = true;
             
-            // 소리 재생 (오류 무시)
+            // 클릭할 때만 사운드 재생
             try {
                 spinSound.currentTime = 0;
                 spinSound.play().catch(() => {});
@@ -624,17 +623,11 @@ app.get('/', (req, res) => {
             }
         }
         
-        // 키보드 이벤트 (스페이스바)
-        document.addEventListener('keydown', (event) => {
-            if (event.code === 'Space') {
-                event.preventDefault();
-                handleCatClick();
-            }
-        });
+        // 키보드 이벤트 제거 - 마우스 클릭만 허용
         
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('OIIA OIIA CAT v4.0 VPN - VPN 감지 가능한 실제 IP 기반 랭킹!');
+            console.log('OIIA OIIA CAT v5.0 CLICK - 클릭 시에만 애니메이션과 사운드 적용!');
         });
         
         // 자동 랭킹 업데이트 (30초마다)
