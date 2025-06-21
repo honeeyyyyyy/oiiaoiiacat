@@ -206,16 +206,25 @@ app.get('/', (req, res) => {
         }
 
         #cat-static { 
-            transform: scale(0.9); 
+            transform: scale(0.9);
+            opacity: 1;
+            display: block;
         }
         
         #cat-spin { 
-            transform: scale(1.2); 
+            transform: scale(1.2);
+            opacity: 0;
+            display: none;
         }
 
         .cat.active {
             opacity: 1;
             display: block;
+        }
+
+        .cat.inactive {
+            opacity: 0;
+            display: none;
         }
 
         .info {
@@ -445,7 +454,7 @@ app.get('/', (req, res) => {
     </style>
 </head>
 <body>
-    <div class="version">v5.0 CLICK</div>
+    <div class="version">v6.0 STATIC</div>
     
     <div class="container">
         <div class="score-container">
@@ -454,7 +463,7 @@ app.get('/', (req, res) => {
         
         <div class="cat-container" onclick="handleCatClick()">
             <img id="cat-static" class="cat active" src="/cat-static.gif" alt="OIIA OIIA CAT">
-            <img id="cat-spin" class="cat" src="/cat-spin.gif" alt="OIIA OIIA CAT Spinning">
+            <img id="cat-spin" class="cat inactive" src="/cat-spin.gif" alt="OIIA OIIA CAT Spinning">
         </div>
         
 
@@ -511,15 +520,17 @@ app.get('/', (req, res) => {
         const clickCountElement = document.getElementById('clickCount');
         const spinSound = document.getElementById('spinSound');
         
-        // 고양이 클릭 처리 - 클릭 시에만 애니메이션과 사운드 동시 적용
+        // 고양이 클릭 처리 - 클릭 시에만 애니메이션 GIF와 사운드 동시 적용
         function handleCatClick() {
             if (isSpinning) return;
             
             clickCount++;
             clickCountElement.textContent = clickCount;
             
-            // 애니메이션과 사운드 동시 시작
+            // 정적 이미지 숨기고 애니메이션 GIF 표시
             catStatic.classList.remove('active');
+            catStatic.classList.add('inactive');
+            catSpin.classList.remove('inactive');
             catSpin.classList.add('active');
             isSpinning = true;
             
@@ -532,9 +543,11 @@ app.get('/', (req, res) => {
             // 서버에 클릭 전송
             sendClickToServer();
             
-            // 1초 후 정적 이미지로 복원
+            // 1초 후 정적 이미지로 복원 (애니메이션 GIF 멈춤)
             setTimeout(() => {
                 catSpin.classList.remove('active');
+                catSpin.classList.add('inactive');
+                catStatic.classList.remove('inactive');
                 catStatic.classList.add('active');
                 isSpinning = false;
             }, 1000);
@@ -627,7 +640,7 @@ app.get('/', (req, res) => {
         
         // 페이지 로드 시 초기화
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('OIIA OIIA CAT v5.0 CLICK - 클릭 시에만 애니메이션과 사운드 적용!');
+            console.log('OIIA OIIA CAT v6.0 STATIC - 클릭하지 않으면 정적, 클릭하면 애니메이션!');
         });
         
         // 자동 랭킹 업데이트 (30초마다)
