@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OIIA OIIA CAT - 에셀이와 함께하는 고양이 돌리기 게임</title>
+    <title>OIIA OIIA CAT - 시각장애 고양이 Ethel의 감동적인 돌리기 게임</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="OIIA OIIA CAT - 전 세계와 함께하는 고양이 돌리기 게임! 에셀이를 돌려서 세계 랭킹에 도전하세요. 실시간 국가별 클릭 랭킹 시스템!">
-    <meta name="keywords" content="고양이게임, 클릭게임, 세계랭킹, OIIA OIIA CAT, 에셀이, 고양이돌리기, 온라인게임, 브라우저게임">
-    <meta name="author" content="OIIA OIIA CAT Team">
-    
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="OIIA OIIA CAT - 에셀이와 함께하는 고양이 돌리기 게임">
-    <meta property="og:description" content="전 세계와 함께하는 고양이 돌리기 게임! 실시간 국가별 랭킹 시스템으로 세계 1위에 도전하세요!">
+    <meta name="description" content="시각장애를 가진 특별한 고양이 Ethel의 이야기를 담은 따뜻한 클릭 게임. 전 세계 플레이어들과 순위를 경쟁하며 동물 보호의 의미를 되새겨보세요.">
+    <meta name="keywords" content="고양이 게임, OIIA CAT, 고양이 돌리기, spinning cat, OIIA OIIA, 오이야 고양이, Ethel, 시각장애 고양이, 동물 보호, 클릭 게임, 웹 게임, 무료 게임">
+    <meta property="og:title" content="OIIA OIIA CAT - 시각장애 고양이 Ethel의 감동적인 돌리기 게임">
+    <meta property="og:description" content="시각장애를 가진 특별한 고양이 Ethel의 이야기를 담은 따뜻한 클릭 게임. 전 세계 플레이어들과 순위를 경쟁하며 동물 보호의 의미를 되새겨보세요.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://oiiaoiiacat.com">
+    <meta name="author" content="OIIA OIIA CAT Team">
     
     <!-- Favicon -->
     <link rel="icon" type="image/gif" href="./public/cat-static.gif">
@@ -33,369 +31,339 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Fredoka One', 'Arial', sans-serif;
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            overflow-x: hidden;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #ffffff;
+            user-select: none;
+            overflow: hidden;
             position: relative;
         }
 
-        .game-container {
-            text-align: center;
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             position: relative;
-            z-index: 10;
         }
 
-        .title {
-            font-size: 4rem;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
-            margin-bottom: 2rem;
-            animation: titleGlow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes titleGlow {
-            from { text-shadow: 3px 3px 6px rgba(0,0,0,0.3), 0 0 20px rgba(255,255,255,0.2); }
-            to { text-shadow: 3px 3px 6px rgba(0,0,0,0.3), 0 0 30px rgba(255,255,255,0.4); }
+        .score-container {
+            font-size: 3rem;
+            color: #333;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .cat-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             position: relative;
-            display: inline-block;
-            margin: 2rem 0;
+            cursor: pointer;
         }
 
         .cat {
-            width: 300px;
-            height: 300px;
-            cursor: pointer;
-            border-radius: 50%;
-            transition: transform 0.1s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            object-fit: cover;
+            position: absolute;
+            width: auto;
+            height: 90vh;
+            max-width: none;
+            object-fit: contain;
+            opacity: 0;
+            display: none;
+            mix-blend-mode: multiply;
         }
 
-        .cat:hover {
-            transform: scale(1.05);
+        #cat-static { transform: scale(0.9); }
+        #cat-spin { transform: scale(1.2); }
+
+        .cat.active {
+            opacity: 1;
+            display: block;
         }
 
-        .cat:active {
-            transform: scale(0.95);
-        }
-
-        .click-counter {
-            font-size: 2rem;
-            color: #fff;
-            margin: 1rem 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .instruction {
-            font-size: 1.2rem;
-            color: #fff;
-            margin: 1rem 0;
-            opacity: 0.9;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-        }
-
-        /* POPCAT 스타일 랭킹 패널 */
-        .ranking-panel {
+        .info {
+            font-size: 1.5rem;
+            color: #333;
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: #1a1a2e;
-            border: 2px solid #16213e;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
             border-radius: 15px;
-            padding: 20px;
-            min-width: 400px;
-            max-width: 90vw;
-            color: white;
-            font-family: 'Courier New', monospace;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            z-index: 1000;
-            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        /* 토글 가능한 랭킹 시스템 */
+        .rankings {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-radius: 20px 20px 0 0 !important;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1) !important;
+            padding: 0 !important;
+            max-height: 70vh !important;
+            overflow: hidden !important;
+            z-index: 100 !important;
+            min-width: 320px !important;
+            max-width: 90vw !important;
+            display: block !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .rankings.collapsed {
+            max-height: 60px !important;
         }
 
         .ranking-toggle {
-            background: #4fc3f7;
+            background: linear-gradient(135deg, #FF6B9D, #e55a8a);
             color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 25px;
+            padding: 15px 20px;
             cursor: pointer;
-            font-size: 1rem;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
             font-weight: bold;
-            margin-bottom: 15px;
+            user-select: none;
             transition: all 0.3s ease;
-            width: 100%;
         }
 
         .ranking-toggle:hover {
-            background: #29b6f6;
-            transform: translateY(-2px);
+            background: linear-gradient(135deg, #e55a8a, #d44b7a);
         }
 
         .ranking-content {
-            display: none;
+            padding: 20px;
+            max-height: calc(70vh - 60px);
+            overflow-y: auto;
+            transition: all 0.3s ease;
         }
 
-        .ranking-content.show {
-            display: block;
+        .rankings.collapsed .ranking-content {
+            display: none;
         }
 
         .ranking-header {
             text-align: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #4fc3f7;
             margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #FFE6F0;
         }
 
-        .world-stats {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-            background: #16213e;
-            padding: 15px;
-            border-radius: 10px;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2rem;
+        .ranking-header h3 {
+            color: #FF6B9D;
+            font-size: 1.3rem;
+            margin: 0;
             font-weight: bold;
-            color: #4fc3f7;
-            display: block;
         }
 
-        .stat-label {
-            font-size: 0.9rem;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .leaderboard {
-            background: #16213e;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .leaderboard-header {
-            display: grid;
-            grid-template-columns: 60px 1fr 120px;
-            background: #0f1419;
-            padding: 10px;
-            font-weight: bold;
-            color: #4fc3f7;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .leaderboard-row {
-            display: grid;
-            grid-template-columns: 60px 1fr 120px;
-            padding: 12px 10px;
-            border-bottom: 1px solid #2a2a3e;
-            transition: background 0.3s ease;
-        }
-
-        .leaderboard-row:hover {
-            background: #2a2a3e;
-        }
-
-        .leaderboard-row:last-child {
-            border-bottom: none;
-        }
-
-        .rank {
-            font-weight: bold;
-            color: #4fc3f7;
-            text-align: center;
-        }
-
-        .country {
+        .ranking-total {
+            background: linear-gradient(135deg, #FF6B9D, #e55a8a);
             color: white;
-            text-align: left;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            text-align: center;
         }
 
-        .clicks {
-            color: #4fc3f7;
-            text-align: right;
+        .total-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .total-item:last-child { margin-bottom: 0; }
+
+        .total-spins {
+            font-size: 1.5em;
             font-weight: bold;
         }
 
-        .loading {
-            text-align: center;
-            color: #888;
-            padding: 20px;
-            font-style: italic;
+        .total-countries {
+            font-size: 1.2em;
+            font-weight: bold;
         }
 
-        /* 모바일 최적화 */
-        @media (max-width: 768px) {
-            .title {
-                font-size: 2.5rem;
-                margin-bottom: 1rem;
-            }
-
-            .cat {
-                width: 250px;
-                height: 250px;
-            }
-
-            .ranking-panel {
-                bottom: 10px;
-                left: 10px;
-                right: 10px;
-                transform: none;
-                min-width: auto;
-                max-width: none;
-            }
-
-            .world-stats {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .leaderboard-header,
-            .leaderboard-row {
-                grid-template-columns: 50px 1fr 100px;
-                font-size: 0.8rem;
-            }
+        .ranking-list {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 10px;
         }
 
-        @media (max-width: 480px) {
-            .cat {
-                width: 200px;
-                height: 200px;
-            }
-
-            .title {
-                font-size: 2rem;
-            }
-
-            .click-counter {
-                font-size: 1.5rem;
-            }
+        .ranking-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        /* 푸터 */
+        .ranking-item:last-child { margin-bottom: 0; }
+
+        .ranking-item:hover {
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+
+        .ranking-position {
+            font-weight: bold;
+            color: #FF6B9D;
+            margin-right: 15px;
+            min-width: 25px;
+            font-size: 1.1rem;
+        }
+
+        .ranking-country {
+            flex-grow: 1;
+            text-align: left;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .ranking-spins {
+            font-weight: bold;
+            color: #FF6B9D;
+            min-width: 80px;
+            text-align: right;
+            font-size: 0.95rem;
+        }
+
+        /* Footer */
         .footer {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 999;
+            position: fixed !important;
+            bottom: 5px !important;
+            right: 20px !important;
+            left: auto !important;
+            transform: none !important;
+            background: rgba(255, 255, 255, 0.8) !important;
+            padding: 5px 15px !important;
+            border-radius: 15px !important;
+            font-size: 0.8rem !important;
+            z-index: 1000 !important;
+            backdrop-filter: blur(10px) !important;
         }
 
         .footer a {
-            color: rgba(255,255,255,0.7);
+            color: #666;
             text-decoration: none;
-            margin: 0 10px;
-            font-size: 0.9rem;
-            transition: color 0.3s ease;
+            transition: color 0.3s;
+            margin: 0 5px;
         }
 
         .footer a:hover {
-            color: white;
+            color: #FF6B9D;
         }
 
-        /* 버전 표시 */
-        .version {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            color: rgba(255,255,255,0.5);
-            font-size: 0.8rem;
-            z-index: 999;
-        }
-
-        /* 디버그 정보 */
-        .debug-info {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            font-family: monospace;
-            font-size: 12px;
-            z-index: 999;
+        /* 모바일 대응 */
+        @media (max-width: 768px) {
+            .cat { height: 80vh; }
+            .rankings {
+                right: 10px !important;
+                left: 10px !important;
+                min-width: auto !important;
+                max-width: none !important;
+            }
+            .ranking-toggle {
+                padding: 12px 15px !important;
+                font-size: 0.85rem !important;
+            }
+            .ranking-content {
+                padding: 15px !important;
+            }
+            .ranking-header h3 {
+                font-size: 1.1rem !important;
+            }
+            .ranking-total {
+                padding: 15px !important;
+                margin-bottom: 15px !important;
+            }
+            .total-item {
+                font-size: 0.9rem !important;
+            }
+            .total-spins {
+                font-size: 1.3em !important;
+            }
+            .total-countries {
+                font-size: 1.1em !important;
+            }
+            .ranking-item {
+                padding: 10px 12px !important;
+                margin-bottom: 6px !important;
+            }
+            .score-container { font-size: 2.5rem; }
+            .footer {
+                bottom: 5px !important;
+                right: 10px !important;
+                font-size: 0.75rem !important;
+                padding: 5px 10px !important;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="version">v2.1 DESIGN-RESTORED</div>
-    
-    <div class="debug-info" id="debugInfo">
-        현재 이미지: 로딩 중...<br>
-        클릭 상태: 대기 중
+    <div class="score-container">
+        <span id="score">0</span>
     </div>
-    
-    <div class="game-container">
-        <h1 class="title">OIIA OIIA CAT</h1>
-        
+
+    <div class="container">
         <div class="cat-container">
-            <img id="catImage" class="cat" src="./public/cat-static.gif" alt="OIIA OIIA CAT" onerror="this.src='./public/1.gif'">
-        </div>
-        
-        <div class="click-counter">
-            클릭 수: <span id="clickCount">0</span>
-        </div>
-        
-        <div class="instruction">
-            고양이를 클릭하거나 스페이스바를 눌러서 돌려보세요!
+            <img src="./public/cat-static.gif" alt="Static Cat" class="cat active" id="cat-static">
+            <img src="./public/cat-spin.gif" alt="Spinning Cat" class="cat" id="cat-spin">
         </div>
     </div>
 
-    <!-- POPCAT 스타일 랭킹 패널 -->
-    <div class="ranking-panel">
-        <button class="ranking-toggle" onclick="toggleRanking()">
-            🌍 WORLD RANKING 보기 ↑
-        </button>
-        
-        <div class="ranking-content" id="rankingContent">
-            <div class="ranking-header">WORLD RANKING</div>
-            
-            <div class="world-stats">
-                <div class="stat-item">
-                    <span class="stat-number" id="totalClicks">0</span>
-                    <span class="stat-label">WORLD CLICKS</span>
+    <!-- 토글 랭킹 시스템 -->
+    <div class="rankings collapsed" id="rankingsList">
+        <div class="ranking-toggle" onclick="toggleRankings()">
+            🌍 전세계 랭킹 보기 ↑
+        </div>
+        <div class="ranking-content">
+            <div class="ranking-header">
+                <h3>🌍 전세계 랭킹</h3>
+            </div>
+            <div class="ranking-total">
+                <div class="total-item">
+                    <span>전세계 총 클릭 수</span>
+                    <span class="total-spins" id="totalClicks">0</span>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="totalCountries">0</span>
-                    <span class="stat-label">COUNTRIES</span>
+                <div class="total-item">
+                    <span>참여 국가 수</span>
+                    <span class="total-countries" id="totalCountries">0</span>
                 </div>
             </div>
-            
-            <div class="leaderboard">
-                <div class="leaderboard-header">
-                    <div>RANK</div>
-                    <div>COUNTRY</div>
-                    <div>CLICKS</div>
-                </div>
-                <div id="leaderboardContent">
-                    <div class="loading">Loading leaderboard...</div>
+            <div class="ranking-list" id="leaderboardContent">
+                <div style="text-align: center; color: #888; padding: 20px; font-style: italic;">
+                    Loading leaderboard...
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="info">고양이를 클릭하거나 스페이스바를 눌러서 돌려보세요!</div>
 
     <div class="footer">
         <a href="terms.html">이용약관</a> | 
@@ -403,224 +371,154 @@
     </div>
 
     <!-- Audio -->
-    <audio id="spinSound" preload="auto">
+    <audio id="spinSound">
         <source src="./public/spin.mp3" type="audio/mpeg">
     </audio>
 
     <script>
-        let clickCount = 0;
-        let isSpinning = false;
-        let rankingVisible = false;
-        
-        const catImage = document.getElementById('catImage');
-        const clickCountElement = document.getElementById('clickCount');
+        const catStatic = document.getElementById('cat-static');
+        const catSpin = document.getElementById('cat-spin');
+        const scoreElement = document.getElementById('score');
         const spinSound = document.getElementById('spinSound');
-        const debugInfo = document.getElementById('debugInfo');
-        
-        // 디버그 정보 업데이트
-        function updateDebugInfo(message) {
-            const currentSrc = catImage.src.split('/').pop();
-            debugInfo.innerHTML = `
-                현재 이미지: ${currentSrc}<br>
-                클릭 상태: ${message}<br>
-                스피닝: ${isSpinning ? '예' : '아니오'}
-            `;
-        }
-        
-        // 이미지 프리로드
-        function preloadImages() {
-            const staticImg = new Image();
-            const spinImg = new Image();
-            const fallbackImg = new Image();
-            
-            staticImg.src = './public/cat-static.gif';
-            spinImg.src = './public/cat-spin.gif';
-            fallbackImg.src = './public/1.gif';
-            
-            staticImg.onload = () => console.log('Static gif loaded');
-            spinImg.onload = () => console.log('Spin gif loaded');
-            fallbackImg.onload = () => console.log('Fallback gif loaded');
-            
-            staticImg.onerror = () => console.error('Failed to load static gif');
-            spinImg.onerror = () => console.error('Failed to load spin gif');
-            fallbackImg.onerror = () => console.error('Failed to load fallback gif');
-        }
-        
-        // 고양이 클릭 처리
-        function handleCatClick() {
-            if (isSpinning) {
-                updateDebugInfo('이미 스피닝 중...');
-                return;
-            }
-            
-            clickCount++;
-            clickCountElement.textContent = clickCount;
-            updateDebugInfo('클릭됨! 스피닝 시작...');
-            
-            // 고양이 이미지 변경
-            isSpinning = true;
-            catImage.src = './public/cat-spin.gif?v=' + Date.now();
-            
-            // 이미지 로드 실패 시 대체 이미지
-            catImage.onerror = function() {
-                console.log('cat-spin.gif 로드 실패, 대체 이미지 사용');
-                this.src = './public/1.gif?v=' + Date.now();
-                this.onerror = null; // 무한 루프 방지
-            };
-            
-            // 소리 재생 (오류 무시)
-            try {
-                spinSound.currentTime = 0;
-                spinSound.play().catch(() => {});
-            } catch (e) {
-                console.log('소리 재생 실패:', e);
-            }
-            
-            // 서버에 클릭 전송
-            sendClickToServer();
-            
-            // 1초 후 정적 이미지로 복원
-            setTimeout(() => {
-                catImage.src = './public/cat-static.gif?v=' + Date.now();
-                catImage.onerror = function() {
-                    console.log('cat-static.gif 로드 실패, 대체 이미지 사용');
-                    this.src = './public/1 (2).gif?v=' + Date.now();
-                    this.onerror = null;
-                };
-                isSpinning = false;
-                updateDebugInfo('스피닝 완료, 정적 상태로 복원');
-            }, 1000);
-        }
-        
-        // 서버에 클릭 데이터 전송
-        async function sendClickToServer() {
+        const catContainer = document.querySelector('.cat-container');
+
+        let score = 0;
+        let isSpinning = false;
+
+        spinSound.loop = true;
+        spinSound.volume = 1.0;
+
+        async function updateScore() {
+            score++;
+            scoreElement.textContent = score;
+            localStorage.setItem('oiiaCatScore', score);
+
             try {
                 const response = await fetch('/api/click', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        timestamp: new Date().toISOString()
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ timestamp: new Date().toISOString() })
                 });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success) {
-                        console.log(`✅ Click recorded for ${data.countryName}: ${data.clicks} total`);
-                        updateDebugInfo(`클릭 기록됨: ${data.countryName} (${data.clicks})`);
-                        
-                        // 랭킹이 열려있으면 업데이트
-                        if (rankingVisible) {
-                            loadRankings();
-                        }
-                    } else {
-                        console.error('Server returned error:', data.error);
-                        updateDebugInfo(`서버 오류: ${data.error}`);
-                    }
-                } else {
-                    console.log('Server not available, working in offline mode');
-                    updateDebugInfo('오프라인 모드 (서버 연결 안됨)');
+                if (response.ok) { 
+                    updateRankings(); 
                 }
             } catch (error) {
-                console.log('Network error, working in offline mode:', error.message);
-                updateDebugInfo('네트워크 오류 (오프라인 모드)');
+                console.log('오프라인 모드');
             }
         }
-        
-        // 랭킹 토글
-        function toggleRanking() {
-            const content = document.getElementById('rankingContent');
-            const button = document.querySelector('.ranking-toggle');
+
+        function toggleRankings() {
+            const rankings = document.getElementById('rankingsList');
+            const toggle = document.querySelector('.ranking-toggle');
             
-            rankingVisible = !rankingVisible;
-            
-            if (rankingVisible) {
-                content.classList.add('show');
-                button.textContent = '🌍 WORLD RANKING 숨기기 ↓';
-                loadRankings();
+            if (rankings.classList.contains('collapsed')) {
+                rankings.classList.remove('collapsed');
+                toggle.innerHTML = '🌍 전세계 랭킹 닫기 ↓';
+                updateRankings();
             } else {
-                content.classList.remove('show');
-                button.textContent = '🌍 WORLD RANKING 보기 ↑';
+                rankings.classList.add('collapsed');
+                toggle.innerHTML = '🌍 전세계 랭킹 보기 ↑';
             }
         }
-        
-        // 랭킹 데이터 로드
-        async function loadRankings() {
+
+        async function updateRankings() {
             try {
                 const response = await fetch('/api/ranking');
                 const data = await response.json();
                 
                 if (data.success) {
-                    // 전체 통계 업데이트
                     document.getElementById('totalClicks').textContent = data.totalClicks.toLocaleString();
                     document.getElementById('totalCountries').textContent = data.participatingCountries;
                     
-                    // 리더보드 업데이트
                     const leaderboardContent = document.getElementById('leaderboardContent');
                     
                     if (data.rankings && data.rankings.length > 0) {
                         leaderboardContent.innerHTML = data.rankings.map((country, index) => `
-                            <div class="leaderboard-row">
-                                <div class="rank">#${index + 1}</div>
-                                <div class="country">${country.countryName}</div>
-                                <div class="clicks">${country.clicks.toLocaleString()}</div>
+                            <div class="ranking-item">
+                                <span class="ranking-position">${index + 1}</span>
+                                <span class="ranking-country">${country.countryName}</span>
+                                <span class="ranking-spins">${country.clicks.toLocaleString()}</span>
                             </div>
                         `).join('');
                     } else {
-                        leaderboardContent.innerHTML = '<div class="loading">No data available yet...</div>';
+                        leaderboardContent.innerHTML = '<div style="text-align: center; color: #888; padding: 20px; font-style: italic;">No data available yet...</div>';
                     }
-                } else {
-                    console.error('Failed to load rankings:', data.error);
-                    document.getElementById('leaderboardContent').innerHTML = '<div class="loading">Failed to load rankings</div>';
                 }
             } catch (error) {
-                console.error('Error loading rankings:', error);
-                document.getElementById('leaderboardContent').innerHTML = '<div class="loading">Error loading rankings</div>';
+                console.log('랭킹 로드 실패');
             }
         }
-        
 
-        
+        function startSpinning(e) {
+            if (e) e.preventDefault();
+            if (isSpinning) return;
+            
+            isSpinning = true;
+            catStatic.classList.remove('active');
+            catSpin.classList.add('active');
+            
+            try {
+                spinSound.currentTime = 0;
+                spinSound.play();
+            } catch (err) {
+                console.log('효과음 재생 실패:', err);
+            }
+            
+            updateScore();
+        }
+
+        function stopSpinning(e) {
+            if (e) e.preventDefault();
+            if (!isSpinning) return;
+            
+            isSpinning = false;
+            catSpin.classList.remove('active');
+            catStatic.classList.add('active');
+            
+            spinSound.pause();
+            spinSound.currentTime = 0;
+        }
+
+        window.addEventListener('load', () => {
+            const savedScore = localStorage.getItem('oiiaCatScore');
+            if (savedScore) {
+                score = parseInt(savedScore);
+                scoreElement.textContent = score;
+            }
+            
+            catStatic.classList.add('active');
+            catSpin.classList.remove('active');
+        });
+
         // 이벤트 리스너
-        catImage.addEventListener('click', handleCatClick);
-        
-        // 키보드 이벤트 (스페이스바)
-        document.addEventListener('keydown', (event) => {
-            if (event.code === 'Space') {
-                event.preventDefault();
-                handleCatClick();
+        catContainer.addEventListener('mousedown', startSpinning);
+        catContainer.addEventListener('mouseup', stopSpinning);
+        catContainer.addEventListener('mouseleave', stopSpinning);
+        catContainer.addEventListener('touchstart', startSpinning);
+        catContainer.addEventListener('touchend', stopSpinning);
+        catContainer.addEventListener('touchcancel', stopSpinning);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && !e.repeat) {
+                e.preventDefault();
+                startSpinning();
             }
         });
-        
-        // 페이지 로드 시 초기화
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 OIIA OIIA CAT v2.0 GIF-FIXED loaded!');
-            preloadImages();
-            updateDebugInfo('페이지 로드 완료');
-            
-            // 초기 이미지 상태 확인
-            catImage.onload = () => {
-                updateDebugInfo('초기 이미지 로드 완료');
-            };
-            
-            catImage.onerror = () => {
-                console.log('초기 이미지 로드 실패, 대체 이미지 시도');
-                catImage.src = './public/1.gif';
-                updateDebugInfo('초기 이미지 로드 실패, 대체 이미지 사용');
-            };
-            
-            // 초기 랭킹 표시는 사용자가 버튼을 눌렀을 때만
-            console.log('🌍 랭킹 시스템 준비 완료 - 사용자가 랭킹 버튼을 누르면 로드됩니다');
+
+        document.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                stopSpinning();
+            }
         });
-        
-        // 자동 랭킹 업데이트 (30초마다)
+
+        window.addEventListener('beforeunload', stopSpinning);
         setInterval(() => {
-            if (rankingVisible) {
-                loadRankings();
+            const rankings = document.getElementById('rankingsList');
+            if (!rankings.classList.contains('collapsed')) {
+                updateRankings();
             }
-        }, 30000);
+        }, 60000);
     </script>
 </body>
 </html> 
