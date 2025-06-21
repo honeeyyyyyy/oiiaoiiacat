@@ -654,27 +654,87 @@
         spinSound.loop = true;
         spinSound.volume = 1.0;
 
+        // 안전한 fetch 함수 (재시도 포함)
+        async function safeFetch(url, options = {}, maxRetries = 3) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, {
+                        ...options,
+                        timeout: 10000 // 10초 타임아웃
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // 응답 데이터 검증
+                    if (!data || typeof data !== 'object') {
+                        throw new Error('Invalid response data format');
+                    }
+                    
+                    return data;
+                } catch (error) {
+                    console.log(`Attempt ${i + 1} failed:`, error.message);
+                    
+                    if (i === maxRetries - 1) {
+                        throw error;
+                    }
+                    
+                    // 재시도 전 대기 (지수 백오프)
+                    await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+                }
+            }
+        }
+
+        // 데이터 검증 함수
+        function validateRankingData(data) {
+            if (!data || typeof data !== 'object') return false;
+            if (typeof data.success !== 'boolean') return false;
+            if (!data.success) return false;
+            if (typeof data.totalClicks !== 'number' || data.totalClicks < 0) return false;
+            if (typeof data.participatingCountries !== 'number' || data.participatingCountries < 0) return false;
+            if (!Array.isArray(data.rankings)) return false;
+            
+            // 랭킹 데이터 각 항목 검증
+            return data.rankings.every(country => 
+                country &&
+                typeof country === 'object' &&
+                typeof country.country === 'string' &&
+                typeof country.countryName === 'string' &&
+                typeof country.clicks === 'number' &&
+                country.clicks >= 0
+            );
+        }
+
         async function updateScore() {
             score++;
             scoreElement.textContent = score;
             localStorage.setItem('oiiaCatScore', score);
 
             try {
-                const response = await fetch('/api/click', {
+                const data = await safeFetch('/api/click', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ timestamp: new Date().toISOString() })
+                    body: JSON.stringify({ 
+                        timestamp: new Date().toISOString(),
+                        userAgent: navigator.userAgent.substring(0, 100) // 제한된 길이
+                    })
                 });
-                if (response.ok) { 
-                    const data = await response.json();
+                
+                // 응답 데이터 검증
+                if (data && data.success) {
                     // 서버에서 받은 언어 정보로 언어 설정
                     if (data.language && data.language !== currentLanguage) {
                         setLanguage(data.language);
                     }
-                    updateRankings(); 
+                    updateRankings();
+                } else {
+                    console.log('⚠️ Click recorded locally but server response invalid');
                 }
             } catch (error) {
-                console.log('오프라인 모드');
+                console.log('🔄 오프라인 모드 - 클릭은 로컬에 저장됨');
             }
         }
 
@@ -697,109 +757,130 @@
             const t = translations[currentLanguage] || translations['en'];
             
             try {
-                const response = await fetch('/api/ranking');
-                const data = await response.json();
+                const data = await safeFetch('/api/ranking');
                 
-                console.log('Ranking data received:', data); // 디버깅용
+                console.log('📊 Ranking data received:', data);
                 
-                if (data.success) {
-                    document.getElementById('totalClicks').textContent = data.totalClicks.toLocaleString();
-                    document.getElementById('totalCountries').textContent = data.participatingCountries;
-                    
-                    const leaderboardContent = document.getElementById('leaderboardContent');
-                    
-                    if (data.rankings && data.rankings.length > 0) {
-                        leaderboardContent.innerHTML = data.rankings.map((country, index) => {
-                            console.log('Country data:', country); // 디버깅용
-                            
-                            // 국기 매핑 (확실한 표시를 위해)
-                            const flagMap = {
-                                'KR': '🇰🇷', 'US': '🇺🇸', 'JP': '🇯🇵', 'CN': '🇨🇳', 'GB': '🇬🇧',
-                                'DE': '🇩🇪', 'FR': '🇫🇷', 'CA': '🇨🇦', 'AU': '🇦🇺', 'BR': '🇧🇷',
-                                'IN': '🇮🇳', 'RU': '🇷🇺', 'IT': '🇮🇹', 'ES': '🇪🇸', 'NL': '🇳🇱'
-                            };
-                            
-                            const flag = country.countryFlag || flagMap[country.country] || '🏳️';
-                            
-                            // 현재 언어에 맞는 국가명 가져오기
-                            const translatedCountryName = t.countryNames[country.country] || country.countryName;
-                            
-                            return `
-                            <div class="ranking-item">
-                                <span class="ranking-position">${index + 1}</span>
-                                <span class="ranking-country">
-                                    <span class="country-flag">${flag}</span>
-                                    ${translatedCountryName}
-                                </span>
-                                <span class="ranking-spins">${country.clicks.toLocaleString()}</span>
-                            </div>
-                        `;
-                        }).join('');
-                    } else {
-                        leaderboardContent.innerHTML = `<div style="text-align: center; color: #888; padding: 20px; font-style: italic;">${t.noDataAvailable}</div>`;
-                    }
-                    
-                    // 랭킹 섹션의 텍스트 업데이트
-                    const totalClicksLabel = document.querySelector('.total-item:first-child span:first-child');
-                    const totalCountriesLabel = document.querySelector('.total-item:last-child span:first-child');
-                    if (totalClicksLabel) totalClicksLabel.textContent = t.totalClicks;
-                    if (totalCountriesLabel) totalCountriesLabel.textContent = t.totalCountries;
+                // 데이터 검증
+                if (!validateRankingData(data)) {
+                    throw new Error('Invalid ranking data received');
                 }
-            } catch (error) {
-                console.log('랭킹 로드 실패, 테스트 데이터 표시');
-                // 오프라인이거나 서버 오류시 테스트 데이터 표시
-                document.getElementById('totalClicks').textContent = '1,234';
-                document.getElementById('totalCountries').textContent = '5';
                 
+                // UI 업데이트
+                const totalClicksElement = document.getElementById('totalClicks');
+                const totalCountriesElement = document.getElementById('totalCountries');
                 const leaderboardContent = document.getElementById('leaderboardContent');
-                leaderboardContent.innerHTML = `
-                    <div class="ranking-item">
-                        <span class="ranking-position">1</span>
-                        <span class="ranking-country">
-                            <span class="country-flag">🇰🇷</span>
-                            ${t.countryNames['KR'] || '대한민국'}
-                        </span>
-                        <span class="ranking-spins">567</span>
-                    </div>
-                    <div class="ranking-item">
-                        <span class="ranking-position">2</span>
-                        <span class="ranking-country">
-                            <span class="country-flag">🇺🇸</span>
-                            ${t.countryNames['US'] || '미국'}
-                        </span>
-                        <span class="ranking-spins">345</span>
-                    </div>
-                    <div class="ranking-item">
-                        <span class="ranking-position">3</span>
-                        <span class="ranking-country">
-                            <span class="country-flag">🇯🇵</span>
-                            ${t.countryNames['JP'] || '일본'}
-                        </span>
-                        <span class="ranking-spins">234</span>
-                    </div>
-                    <div class="ranking-item">
-                        <span class="ranking-position">4</span>
-                        <span class="ranking-country">
-                            <span class="country-flag">🇨🇳</span>
-                            ${t.countryNames['CN'] || '중국'}
-                        </span>
-                        <span class="ranking-spins">123</span>
-                    </div>
-                    <div class="ranking-item">
-                        <span class="ranking-position">5</span>
-                        <span class="ranking-country">
-                            <span class="country-flag">🇬🇧</span>
-                            ${t.countryNames['GB'] || '영국'}
-                        </span>
-                        <span class="ranking-spins">88</span>
-                    </div>
-                `;
                 
-                // 오프라인 모드에서도 라벨 업데이트
+                if (totalClicksElement) {
+                    totalClicksElement.textContent = data.totalClicks.toLocaleString();
+                }
+                
+                if (totalCountriesElement) {
+                    totalCountriesElement.textContent = data.participatingCountries;
+                }
+                
+                if (leaderboardContent && data.rankings.length > 0) {
+                    leaderboardContent.innerHTML = data.rankings.map((country, index) => {
+                        console.log('🏆 Country data:', country);
+                        
+                        // 국기 매핑 (확실한 표시를 위해)
+                        const flagMap = {
+                            'KR': '🇰🇷', 'US': '🇺🇸', 'JP': '🇯🇵', 'CN': '🇨🇳', 'GB': '🇬🇧',
+                            'DE': '🇩🇪', 'FR': '🇫🇷', 'CA': '🇨🇦', 'AU': '🇦🇺', 'BR': '🇧🇷',
+                            'IN': '🇮🇳', 'RU': '🇷🇺', 'IT': '🇮🇹', 'ES': '🇪🇸', 'NL': '🇳🇱'
+                        };
+                        
+                        const flag = country.countryFlag || flagMap[country.country] || '🏳️';
+                        
+                        // 현재 언어에 맞는 국가명 가져오기
+                        const translatedCountryName = t.countryNames[country.country] || country.countryName;
+                        
+                        return `
+                        <div class="ranking-item">
+                            <span class="ranking-position">${index + 1}</span>
+                            <span class="ranking-country">
+                                <span class="country-flag">${flag}</span>
+                                ${translatedCountryName}
+                            </span>
+                            <span class="ranking-spins">${country.clicks.toLocaleString()}</span>
+                        </div>
+                    `;
+                    }).join('');
+                } else if (leaderboardContent) {
+                    leaderboardContent.innerHTML = `<div style="text-align: center; color: #888; padding: 20px; font-style: italic;">${t.noDataAvailable}</div>`;
+                }
+                
+                // 랭킹 섹션의 텍스트 업데이트
                 const totalClicksLabel = document.querySelector('.total-item:first-child span:first-child');
                 const totalCountriesLabel = document.querySelector('.total-item:last-child span:first-child');
                 if (totalClicksLabel) totalClicksLabel.textContent = t.totalClicks;
                 if (totalCountriesLabel) totalCountriesLabel.textContent = t.totalCountries;
+                
+            } catch (error) {
+                console.log('❌ 랭킹 로드 실패, 안전한 기본 데이터 표시:', error.message);
+                
+                // 안전한 오프라인 데이터 표시
+                const safeOfflineData = () => {
+                    const totalClicksElement = document.getElementById('totalClicks');
+                    const totalCountriesElement = document.getElementById('totalCountries');
+                    const leaderboardContent = document.getElementById('leaderboardContent');
+                    
+                    if (totalClicksElement) totalClicksElement.textContent = '1,234';
+                    if (totalCountriesElement) totalCountriesElement.textContent = '5';
+                    
+                    if (leaderboardContent) {
+                        leaderboardContent.innerHTML = `
+                            <div class="ranking-item">
+                                <span class="ranking-position">1</span>
+                                <span class="ranking-country">
+                                    <span class="country-flag">🇰🇷</span>
+                                    ${t.countryNames['KR'] || '대한민국'}
+                                </span>
+                                <span class="ranking-spins">567</span>
+                            </div>
+                            <div class="ranking-item">
+                                <span class="ranking-position">2</span>
+                                <span class="ranking-country">
+                                    <span class="country-flag">🇺🇸</span>
+                                    ${t.countryNames['US'] || '미국'}
+                                </span>
+                                <span class="ranking-spins">345</span>
+                            </div>
+                            <div class="ranking-item">
+                                <span class="ranking-position">3</span>
+                                <span class="ranking-country">
+                                    <span class="country-flag">🇯🇵</span>
+                                    ${t.countryNames['JP'] || '일본'}
+                                </span>
+                                <span class="ranking-spins">234</span>
+                            </div>
+                            <div class="ranking-item">
+                                <span class="ranking-position">4</span>
+                                <span class="ranking-country">
+                                    <span class="country-flag">🇨🇳</span>
+                                    ${t.countryNames['CN'] || '중국'}
+                                </span>
+                                <span class="ranking-spins">123</span>
+                            </div>
+                            <div class="ranking-item">
+                                <span class="ranking-position">5</span>
+                                <span class="ranking-country">
+                                    <span class="country-flag">🇬🇧</span>
+                                    ${t.countryNames['GB'] || '영국'}
+                                </span>
+                                <span class="ranking-spins">88</span>
+                            </div>
+                        `;
+                    }
+                    
+                    // 오프라인 모드에서도 라벨 업데이트
+                    const totalClicksLabel = document.querySelector('.total-item:first-child span:first-child');
+                    const totalCountriesLabel = document.querySelector('.total-item:last-child span:first-child');
+                    if (totalClicksLabel) totalClicksLabel.textContent = t.totalClicks;
+                    if (totalCountriesLabel) totalCountriesLabel.textContent = t.totalCountries;
+                };
+                
+                safeOfflineData();
             }
         }
 
