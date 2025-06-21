@@ -80,28 +80,11 @@
             cursor: pointer;
         }
 
-        .cat {
-            position: absolute;
+        #catImage {
             width: auto;
             height: 80vh;
             max-width: none;
             object-fit: contain;
-            opacity: 0;
-            display: none;
-            mix-blend-mode: multiply;
-        }
-
-        #cat-static { 
-            transform: scale(0.9); 
-        }
-        
-        #cat-spin { 
-            transform: scale(1.2); 
-        }
-
-        .cat.active {
-            opacity: 1;
-            display: block;
         }
 
         .info {
@@ -277,7 +260,7 @@
 
         /* 모바일 최적화 */
         @media (max-width: 768px) {
-            .cat {
+            #catImage {
                 height: 70vh;
             }
 
@@ -323,21 +306,15 @@
     </style>
 </head>
 <body>
-    <div class="version">v1.0 PERFECT</div>
+    <div class="version">v13.0 SIMPLE</div>
     
     <div class="container">
         <div class="score-container">
             클릭 수: <span id="clickCount">0</span>
         </div>
         
-        <div class="cat-container" 
-             onmousedown="startSpin()" 
-             onmouseup="stopSpin()" 
-             onmouseleave="stopSpin()"
-             ontouchstart="startSpin()" 
-             ontouchend="stopSpin()">
-            <img id="cat-static" class="cat active" src="cat-static.gif" alt="OIIA OIIA CAT">
-            <img id="cat-spin" class="cat" src="cat-spin.gif" alt="OIIA OIIA CAT Spinning">
+        <div class="cat-container" onclick="spinCat()">
+            <img id="catImage" src="cat-static.gif" alt="OIIA OIIA CAT">
         </div>
         
 
@@ -389,49 +366,35 @@
         let isSpinning = false;
         let rankingVisible = false;
         
-        const catStatic = document.getElementById('cat-static');
-        const catSpin = document.getElementById('cat-spin');
+        const catImage = document.getElementById('catImage');
         const clickCountElement = document.getElementById('clickCount');
         const spinSound = document.getElementById('spinSound');
         
-        // 마우스/터치 누르기 시작
-        function startSpin() {
+        // 고양이 클릭 함수
+        function spinCat() {
             if (isSpinning) return;
             
             clickCount++;
             clickCountElement.textContent = clickCount;
-            
-            // 고양이 이미지 변경 및 소리 재생
-            catStatic.classList.remove('active');
-            catSpin.classList.add('active');
             isSpinning = true;
             
-            // 소리 재생 (루프)
+            // GIF를 스핀 애니메이션으로 변경
+            catImage.src = 'cat-spin.gif';
+            
+            // 소리 재생
             try {
                 spinSound.currentTime = 0;
-                spinSound.loop = true;
                 spinSound.play().catch(() => {});
             } catch (e) {}
             
             // 서버에 클릭 전송
             sendClickToServer();
-        }
-        
-        // 마우스/터치 놓기
-        function stopSpin() {
-            if (!isSpinning) return;
             
-            // 즉시 정적 이미지로 복원
-            catSpin.classList.remove('active');
-            catStatic.classList.add('active');
-            isSpinning = false;
-            
-            // 소리 즉시 중지
-            try {
-                spinSound.pause();
-                spinSound.currentTime = 0;
-                spinSound.loop = false;
-            } catch (e) {}
+            // 1초 후 정적 이미지로 복원
+            setTimeout(() => {
+                catImage.src = 'cat-static.gif';
+                isSpinning = false;
+            }, 1000);
         }
         
         // 서버에 클릭 데이터 전송
@@ -517,22 +480,11 @@
             }
         }
         
-        // 키보드 이벤트 (스페이스바 홀드)
-        let spacePressed = false;
-        
+        // 키보드 이벤트 (스페이스바)
         document.addEventListener('keydown', (event) => {
-            if (event.code === 'Space' && !spacePressed) {
+            if (event.code === 'Space') {
                 event.preventDefault();
-                spacePressed = true;
-                startSpin();
-            }
-        });
-        
-        document.addEventListener('keyup', (event) => {
-            if (event.code === 'Space' && spacePressed) {
-                event.preventDefault();
-                spacePressed = false;
-                stopSpin();
+                spinCat();
             }
         });
         
