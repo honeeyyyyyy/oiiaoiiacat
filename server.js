@@ -9,18 +9,56 @@ const PORT = process.env.PORT || 3000;
 let clickData = [];
 let countryStats = {};
 
-// 국가 이름 매핑
+// 국가 이름 매핑 (확장됨)
 const countryNames = {
-    'KR': '🇰🇷 대한민국',
-    'US': '🇺🇸 미국', 
-    'JP': '🇯🇵 일본',
-    'CN': '🇨🇳 중국',
-    'GB': '🇬🇧 영국',
-    'DE': '🇩🇪 독일',
-    'FR': '🇫🇷 프랑스',
-    'CA': '🇨🇦 캐나다',
-    'Local': '🏠 로컬',
-    'Unknown': '❓ 알 수 없음'
+    'KR': '🇰🇷 South Korea',
+    'US': '🇺🇸 United States', 
+    'JP': '🇯🇵 Japan',
+    'CN': '🇨🇳 China',
+    'GB': '🇬🇧 United Kingdom',
+    'DE': '🇩🇪 Germany',
+    'FR': '🇫🇷 France',
+    'CA': '🇨🇦 Canada',
+    'AU': '🇦🇺 Australia',
+    'BR': '🇧🇷 Brazil',
+    'IN': '🇮🇳 India',
+    'RU': '🇷🇺 Russia',
+    'IT': '🇮🇹 Italy',
+    'ES': '🇪🇸 Spain',
+    'MX': '🇲🇽 Mexico',
+    'TH': '🇹🇭 Thailand',
+    'VN': '🇻🇳 Vietnam',
+    'ID': '🇮🇩 Indonesia',
+    'MY': '🇲🇾 Malaysia',
+    'SG': '🇸🇬 Singapore',
+    'PH': '🇵🇭 Philippines',
+    'TW': '🇹🇼 Taiwan',
+    'HK': '🇭🇰 Hong Kong',
+    'NL': '🇳🇱 Netherlands',
+    'SE': '🇸🇪 Sweden',
+    'NO': '🇳🇴 Norway',
+    'DK': '🇩🇰 Denmark',
+    'FI': '🇫🇮 Finland',
+    'CH': '🇨🇭 Switzerland',
+    'AT': '🇦🇹 Austria',
+    'BE': '🇧🇪 Belgium',
+    'PT': '🇵🇹 Portugal',
+    'PL': '🇵🇱 Poland',
+    'CZ': '🇨🇿 Czech Republic',
+    'TR': '🇹🇷 Turkey',
+    'IL': '🇮🇱 Israel',
+    'SA': '🇸🇦 Saudi Arabia',
+    'AE': '🇦🇪 UAE',
+    'EG': '🇪🇬 Egypt',
+    'ZA': '🇿🇦 South Africa',
+    'NG': '🇳🇬 Nigeria',
+    'AR': '🇦🇷 Argentina',
+    'CL': '🇨🇱 Chile',
+    'CO': '🇨🇴 Colombia',
+    'PE': '🇵🇪 Peru',
+    'NZ': '🇳🇿 New Zealand',
+    'Local': '🏠 Local',
+    'Unknown': '❓ Unknown'
 };
 
 // 미들웨어
@@ -36,21 +74,86 @@ app.use((req, res, next) => {
     next();
 });
 
-// 간단한 IP 국가 매핑
-function getCountryFromIP(ip) {
-    if (!ip || ip === '127.0.0.1' || ip.includes('localhost') || ip.includes('192.168')) {
-        return 'Local';
+// 실제 IP 지역 감지 API 사용
+async function getCountryFromIP(ip) {
+    try {
+        // 로컬 IP 처리
+        if (!ip || ip === '127.0.0.1' || ip.includes('localhost') || ip.includes('192.168') || ip.includes('10.0') || ip === '::1' || ip === '::ffff:127.0.0.1') {
+            return 'Local';
+        }
+
+        console.log(`IP 지역 감지 시도: ${ip}`);
+
+        // 첫 번째 API: ipapi.co (무료, 신뢰성 높음)
+        try {
+            const response = await fetch(`https://ipapi.co/${ip}/country_code/`, {
+                timeout: 5000,
+                headers: {
+                    'User-Agent': 'OIIA-OIIA-CAT/11.0'
+                }
+            });
+            
+            if (response.ok) {
+                const countryCode = await response.text();
+                if (countryCode && countryCode.length === 2 && countryCode !== 'undefined') {
+                    console.log(`ipapi.co 결과: ${countryCode}`);
+                    return countryCode.toUpperCase();
+                }
+            }
+        } catch (apiError) {
+            console.log('ipapi.co 실패:', apiError.message);
+        }
+
+        // 두 번째 API: ip-api.com (백업)
+        try {
+            const backupResponse = await fetch(`http://ip-api.com/json/${ip}?fields=countryCode`, {
+                timeout: 5000
+            });
+            
+            if (backupResponse.ok) {
+                const data = await backupResponse.json();
+                if (data.countryCode) {
+                    console.log(`ip-api.com 결과: ${data.countryCode}`);
+                    return data.countryCode.toUpperCase();
+                }
+            }
+        } catch (apiError) {
+            console.log('ip-api.com 실패:', apiError.message);
+        }
+
+        // 세 번째 API: ipinfo.io (백업)
+        try {
+            const ipinfoResponse = await fetch(`https://ipinfo.io/${ip}/country`, {
+                timeout: 5000
+            });
+            
+            if (ipinfoResponse.ok) {
+                const countryCode = await ipinfoResponse.text();
+                if (countryCode && countryCode.length === 2) {
+                    console.log(`ipinfo.io 결과: ${countryCode}`);
+                    return countryCode.toUpperCase();
+                }
+            }
+        } catch (apiError) {
+            console.log('ipinfo.io 실패:', apiError.message);
+        }
+
+        // 모든 API 실패 시 간단한 매핑 사용
+        console.log('모든 API 실패, 간단 매핑 사용');
+        const num = parseInt(ip.split('.')[0]) || 0;
+        if (num <= 60) return 'KR';
+        if (num <= 120) return 'US';
+        if (num <= 140) return 'JP';
+        if (num <= 160) return 'CN';
+        if (num <= 180) return 'GB';
+        if (num <= 200) return 'DE';
+        if (num <= 220) return 'FR';
+        return 'CA';
+        
+    } catch (error) {
+        console.error('IP 국가 조회 실패:', error);
+        return 'Unknown';
     }
-    
-    const num = parseInt(ip.split('.')[0]) || 0;
-    if (num <= 60) return 'KR';
-    if (num <= 120) return 'US';
-    if (num <= 140) return 'JP';
-    if (num <= 160) return 'CN';
-    if (num <= 180) return 'GB';
-    if (num <= 200) return 'DE';
-    if (num <= 220) return 'FR';
-    return 'CA';
 }
 
 // 초기 테스트 데이터 강화
@@ -98,10 +201,10 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-app.post('/api/click', (req, res) => {
+app.post('/api/click', async (req, res) => {
     try {
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || '127.0.0.1';
-        const country = getCountryFromIP(ip.split(',')[0]);
+        const country = await getCountryFromIP(ip.split(',')[0]);
         const countryName = countryNames[country];
         
         // 데이터 저장
