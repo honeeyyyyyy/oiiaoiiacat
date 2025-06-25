@@ -1,43 +1,26 @@
 {
-    "version": 2,
-    "name": "oiiaoiiacat-final-v10",
-    "builds": [
-        {
-            "src": "server.js",
-            "use": "@vercel/node"
-        },
-        {
-            "src": "public/**",
-            "use": "@vercel/static"
-        }
-    ],
-    "routes": [
-        {
-            "src": "/api/(.*)",
-            "dest": "/server.js"
-        },
-        {
-            "src": "/test-gif.html",
-            "dest": "/test-gif.html"
-        },
-        {
-            "src": "/terms.html",
-            "dest": "/terms.html"
-        },
-        {
-            "src": "/privacy.html",
-            "dest": "/privacy.html"
-        },
-        {
-            "src": "/public/(.*)",
-            "dest": "/public/$1"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/server.js"
-        }
-    ],
-    "env": {
-        "NODE_ENV": "production"
+  "name": "oiiaoiia-cat-game",
+  "version": 2,
+  "functions": {
+    "api/click.js": {
+      "runtime": "nodejs18.x"
+    },
+    "api/ranking.js": {
+      "runtime": "nodejs18.x"
     }
+  },
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "src": "/public/(.*)",
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
 } 
