@@ -1,14 +1,15 @@
 {
-  "name": "oiiaoiia-cat-game",
   "version": 2,
-  "functions": {
-    "api/click.js": {
-      "runtime": "nodejs18.x"
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
     },
-    "api/ranking.js": {
-      "runtime": "nodejs18.x"
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
     }
-  },
+  ],
   "routes": [
     {
       "src": "/api/(.*)",

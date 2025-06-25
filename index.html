@@ -132,7 +132,7 @@
     <div class="connection-status" id="connectionStatus">🟢 서버리스 API 연결됨</div>
     
     <div class="cat-container" id="catContainer">
-        <img class="cat-image" id="catImage" src="/public/cat-static.gif" alt="고양이" draggable="false">
+        <img class="cat-image" id="catImage" src="/cat-static.gif" alt="고양이" draggable="false">
     </div>
 
     <div class="ranking">
@@ -147,7 +147,7 @@
     </div>
 
     <audio id="clickSound" preload="auto" loop>
-        <source src="/public/spin.mp3" type="audio/mpeg">
+        <source src="/spin.mp3" type="audio/mpeg">
     </audio>
 
     <script>
@@ -276,11 +276,11 @@
         // 클릭 애니메이션
         function performClickAnimation() {
             // 고양이 이미지 변경
-            catImage.src = '/public/cat-spin.gif';
+            catImage.src = '/cat-spin.gif';
             catContainer.classList.add('spinning');
             
             setTimeout(() => {
-                catImage.src = '/public/cat-static.gif';
+                catImage.src = '/cat-static.gif';
                 catContainer.classList.remove('spinning');
             }, 500);
         }
